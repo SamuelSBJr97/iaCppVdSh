@@ -12,6 +12,7 @@ using namespace std;
 void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
 {
     sr.upsample(inputFrame, outputFrame);
+    cout << "Quadro aprimorado." << endl;
 }
 
 void removeNoise(const Mat &inputFrame, Mat &outputFrame)
@@ -36,6 +37,7 @@ void removeNoise(const Mat &inputFrame, Mat &outputFrame)
             __m128i src = _mm_loadu_si128((__m128i *)&pSrc[j]);
             _mm_storeu_si128((__m128i *)&pDst[j], src);
         }
+        cout << "Removendo ruído: linha " << i + 1 << " de " << nRows << endl;
     }
 }
 
@@ -47,6 +49,7 @@ void interpolateFrames(const Mat &frame1, const Mat &frame2, vector<Mat> &interp
         Mat interpolatedFrame;
         addWeighted(frame1, 1.0 - alpha, frame2, alpha, 0.0, interpolatedFrame);
         interpolatedFrames.push_back(interpolatedFrame);
+        cout << "Interpolação de quadros: " << i << " de " << numInterpolatedFrames << endl;
     }
 }
 
