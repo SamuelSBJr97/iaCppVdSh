@@ -30,8 +30,9 @@ void savePartialImage(const Mat &frame, const string &baseName, int frameNumber)
 void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
 {
     // Aplicar super-resolução diretamente
-    sr.upsample(inputFrame, outputFrame);
-    cout << "Quadro aprimorado." << endl;
+    // sr.upsample(inputFrame, outputFrame);
+    outputFrame = inputFrame.clone(); // Apenas clonar o quadro de entrada para saída
+    cout << "Quadro aprimorado (super-resolução desativada)." << endl;
 }
 
 void removeNoise(const Mat &inputFrame, Mat &outputFrame, const string &baseName, int frameNumber)
