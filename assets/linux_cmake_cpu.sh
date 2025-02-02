@@ -9,22 +9,20 @@ git clone https://github.com/opencv/opencv_contrib.git
 cd /content/opencv
 mkdir build
 cd /content/opencv/build
+
 cmake -D CMAKE_BUILD_TYPE=RELEASE \
       -D CMAKE_INSTALL_PREFIX=/usr/local \
       -D OPENCV_EXTRA_MODULES_PATH=/content/opencv_contrib/modules \
-      -D WITH_CUDA=ON \
-      -D ENABLE_FAST_MATH=1 \
-      -D CUDA_FAST_MATH=1 \
-      -D WITH_CUBLAS=1 \
-      -D OPENCV_DNN_CUDA=ON \
+      -D WITH_CUDA=OFF \
       -D BUILD_opencv_python3=ON \
       -D BUILD_opencv_python2=OFF \
       -D BUILD_opencv_java=OFF \
       -D BUILD_EXAMPLES=OFF ..
+
 make -j$(nproc)
 sudo make install
 sudo ldconfig
 
-cd /content
+cd /content/iaCppRemaster
 
 g++ -o iaCppRemaster iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
