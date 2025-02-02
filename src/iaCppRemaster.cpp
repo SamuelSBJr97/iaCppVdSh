@@ -3,6 +3,8 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <queue>
+#include <condition_variable>
 
 using namespace cv;
 using namespace dnn_superres;
@@ -10,13 +12,11 @@ using namespace std;
 
 void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
 {
-    // Aplicar super-resolução ao quadro
     sr.upsample(inputFrame, outputFrame);
 }
 
 void removeNoise(const Mat &inputFrame, Mat &outputFrame)
 {
-    // Aplicar filtro bilateral para remoção de ruído
     bilateralFilter(inputFrame, outputFrame, 9, 75, 75);
 }
 
@@ -31,6 +31,13 @@ void interpolateFrames(const Mat &frame1, const Mat &frame2, vector<Mat> &interp
     }
 }
 
+void processFrame(const Mat &frame, Mat &enhancedFrame, DnnSuperResImpl &sr)
+{
+    Mat denoisedFrame;
+    removeNoise(frame, denoisedFrame);
+    enhanceFrame(denoisedFrame, enhancedFrame, sr);
+}
+
 void processVideo(const string &inputVideoPath, const string &outputVideoPath, DnnSuperResImpl &sr, int scale, int targetFPS)
 {
     VideoCapture cap(inputVideoPath);
@@ -40,16 +47,12 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
         return;
     }
 
-    // Obter parâmetros do vídeo original
     int frameWidth = static_cast<int>(cap.get(CAP_PROP_FRAME_WIDTH));
     int frameHeight = static_cast<int>(cap.get(CAP_PROP_FRAME_HEIGHT));
     double fps = cap.get(CAP_PROP_FPS);
     int fourcc = static_cast<int>(cap.get(CAP_PROP_FOURCC));
-
-    // Calcular o número de quadros interpolados necessários
     int numInterpolatedFrames = static_cast<int>((targetFPS / fps) - 1);
 
-    // Configurar o vídeo de saída
     VideoWriter writer(outputVideoPath, fourcc, targetFPS, Size(frameWidth * scale, frameHeight * scale));
     if (!writer.isOpened())
     {
@@ -57,38 +60,75 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
         return;
     }
 
-    Mat frame, enhancedFrame, denoisedFrame, prevFrame;
+    Mat frame, enhancedFrame, prevFrame;
     bool firstFrame = true;
     mutex mtx;
+    queue<Mat> frameQueue;
+    condition_variable cv;
+    bool done = false;
+
+    auto worker = [&]()
+    {
+        while (true)
+        {
+            Mat frame;
+            {
+                unique_lock<mutex> lock(mtx);
+                cv.wait(lock, [&]()
+                        { return !frameQueue.empty() || done; });
+                if (done && frameQueue.empty())
+                    break;
+                frame = frameQueue.front();
+                frameQueue.pop();
+            }
+            Mat enhancedFrame;
+            processFrame(frame, enhancedFrame, sr);
+            {
+                lock_guard<mutex> lock(mtx);
+                if (!firstFrame)
+                {
+                    vector<Mat> interpolatedFrames;
+                    interpolateFrames(prevFrame, enhancedFrame, interpolatedFrames, numInterpolatedFrames);
+                    for (const auto &interpolatedFrame : interpolatedFrames)
+                    {
+                        writer.write(interpolatedFrame);
+                    }
+                }
+                writer.write(enhancedFrame);
+                prevFrame = enhancedFrame.clone();
+                firstFrame = false;
+            }
+        }
+    };
+
+    vector<thread> workers;
+    int numThreads = thread::hardware_concurrency();
+    for (int i = 0; i < numThreads; ++i)
+    {
+        workers.emplace_back(worker);
+    }
 
     while (true)
     {
         cap >> frame;
         if (frame.empty())
             break;
-
-        // Processar o quadro em uma thread separada
-        thread processingThread([&]()
-                                {
-            // Remover ruído do quadro
-            removeNoise(frame, denoisedFrame);
-
-            // Aplicar super-resolução ao quadro sem ruído
-            enhanceFrame(denoisedFrame, enhancedFrame, sr);
-
+        {
             lock_guard<mutex> lock(mtx);
-            if (!firstFrame) {
-                vector<Mat> interpolatedFrames;
-                interpolateFrames(prevFrame, enhancedFrame, interpolatedFrames, numInterpolatedFrames);
-                for (const auto& interpolatedFrame : interpolatedFrames) {
-                    writer.write(interpolatedFrame);
-                }
-            }
+            frameQueue.push(frame);
+        }
+        cv.notify_one();
+    }
 
-            writer.write(enhancedFrame);
-            prevFrame = enhancedFrame.clone();
-            firstFrame = false; });
-        processingThread.join();
+    {
+        lock_guard<mutex> lock(mtx);
+        done = true;
+    }
+    cv.notify_all();
+
+    for (auto &worker : workers)
+    {
+        worker.join();
     }
 }
 
@@ -108,12 +148,10 @@ int main(int argc, char **argv)
     string arquitetura = argv[6];
     int targetFPS = stoi(argv[7]);
 
-    // Inicializar o modelo de super-resolução uma vez
     DnnSuperResImpl sr;
     sr.readModel(modelPath);
     sr.setModel(modelName, scale);
 
-    // Configurar para usar GPU ou CPU
     if (arquitetura == "gpu")
     {
         sr.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
