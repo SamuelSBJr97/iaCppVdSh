@@ -47,3 +47,8 @@ g++ -o iaCppRemaster/iaCppRemaster iaCppRemaster/src/iaCppRemaster.cpp `pkg-conf
 ```bash
 iaCppRemaster/iaCppRemaster iaCppRemaster/assets/input.mkv iaCppRemaster/assets/output.mp4 iaCppRemaster/assets/opencv_super_resolution_EDSR_x4.pb edsr 4
 ```
+
+#### 2K de resolução
+```bash
+iaCppRemaster/iaCppRemaster iaCppRemaster/assets/input.mkv iaCppRemaster/assets/output.mp4 iaCppRemaster/assets/opencv_super_resolution_FSRCNN_x2.pb fsrcnn 2
+```
