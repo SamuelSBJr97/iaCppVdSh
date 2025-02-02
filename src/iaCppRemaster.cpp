@@ -11,11 +11,34 @@ using namespace std;
 
 void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
 {
+    // Verificar se a GPU está sendo utilizada
+    if (sr.getPreferableBackend() == cv::dnn::DNN_BACKEND_CUDA)
+    {
+        cout << "Usando GPU para super-resolução." << endl;
+    }
+    else
+    {
+        cout << "Usando CPU para super-resolução." << endl;
+    }
+
+    // Aplicar super-resolução diretamente
     sr.upsample(inputFrame, outputFrame);
+
     cout << "Quadro aprimorado." << endl;
 }
 
-void removeNoise(const Mat &inputFrame, Mat &outputFrame)
+void savePartialImage(const Mat &frame, const string &baseName, int frameNumber)
+{
+    string filename = generateFilename(baseName, frameNumber);
+    if (!imwrite(filename, frame))
+    {
+        cerr << "Erro ao salvar a imagem parcial: " << filename << endl;
+        return;
+    }
+    cout << "Salvando imagem parcial: " << filename << endl;
+}
+
+void removeNoise(const Mat &inputFrame, Mat &outputFrame, const string &baseName, int frameNumber)
 {
     // Usar filtro bilateral com SIMD
     Mat tempFrame;
@@ -39,6 +62,9 @@ void removeNoise(const Mat &inputFrame, Mat &outputFrame)
         }
         cout << "Removendo ruído: linha " << i + 1 << " de " << nRows << endl;
     }
+
+    // Salvar imagem parcial após remover ruído
+    savePartialImage(outputFrame, baseName, frameNumber);
 }
 
 void interpolateFrames(const Mat &frame1, const Mat &frame2, vector<Mat> &interpolatedFrames, int numInterpolatedFrames)
@@ -53,10 +79,10 @@ void interpolateFrames(const Mat &frame1, const Mat &frame2, vector<Mat> &interp
     }
 }
 
-void processFrame(const Mat &frame, Mat &enhancedFrame, DnnSuperResImpl &sr)
+void processFrame(const Mat &frame, Mat &enhancedFrame, DnnSuperResImpl &sr, const string &baseName, int frameNumber)
 {
     Mat denoisedFrame;
-    removeNoise(frame, denoisedFrame);
+    removeNoise(frame, denoisedFrame, baseName, frameNumber);
     enhanceFrame(denoisedFrame, enhancedFrame, sr);
 }
 
@@ -65,17 +91,6 @@ string generateFilename(const string &baseName, int frameNumber)
     stringstream ss;
     ss << baseName << "_frame_" << setw(6) << setfill('0') << frameNumber << ".png";
     return ss.str();
-}
-
-void savePartialImage(const Mat &frame, const string &baseName, int frameNumber)
-{
-    string filename = generateFilename(baseName, frameNumber);
-    if (!imwrite(filename, frame))
-    {
-        cerr << "Erro ao salvar a imagem parcial: " << filename << endl;
-        return;
-    }
-    cout << "Salvando imagem parcial: " << filename << endl;
 }
 
 void displayProgressBar(int current, int total)
@@ -133,7 +148,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
         if (frame.empty())
             break;
 
-        processFrame(frame, enhancedFrame, sr);
+        processFrame(frame, enhancedFrame, sr, outputVideoPath, frameNumber);
 
         if (!firstFrame)
         {
