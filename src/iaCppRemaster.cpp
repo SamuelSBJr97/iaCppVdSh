@@ -9,22 +9,11 @@ using namespace cv;
 using namespace dnn_superres;
 using namespace std;
 
-void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
+string generateFilename(const string &baseName, int frameNumber)
 {
-    // Verificar se a GPU está sendo utilizada
-    if (sr.getPreferableBackend() == cv::dnn::DNN_BACKEND_CUDA)
-    {
-        cout << "Usando GPU para super-resolução." << endl;
-    }
-    else
-    {
-        cout << "Usando CPU para super-resolução." << endl;
-    }
-
-    // Aplicar super-resolução diretamente
-    sr.upsample(inputFrame, outputFrame);
-
-    cout << "Quadro aprimorado." << endl;
+    stringstream ss;
+    ss << baseName << "_frame_" << setw(6) << setfill('0') << frameNumber << ".png";
+    return ss.str();
 }
 
 void savePartialImage(const Mat &frame, const string &baseName, int frameNumber)
@@ -36,6 +25,13 @@ void savePartialImage(const Mat &frame, const string &baseName, int frameNumber)
         return;
     }
     cout << "Salvando imagem parcial: " << filename << endl;
+}
+
+void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
+{
+    // Aplicar super-resolução diretamente
+    sr.upsample(inputFrame, outputFrame);
+    cout << "Quadro aprimorado." << endl;
 }
 
 void removeNoise(const Mat &inputFrame, Mat &outputFrame, const string &baseName, int frameNumber)
@@ -84,13 +80,6 @@ void processFrame(const Mat &frame, Mat &enhancedFrame, DnnSuperResImpl &sr, con
     Mat denoisedFrame;
     removeNoise(frame, denoisedFrame, baseName, frameNumber);
     enhanceFrame(denoisedFrame, enhancedFrame, sr);
-}
-
-string generateFilename(const string &baseName, int frameNumber)
-{
-    stringstream ss;
-    ss << baseName << "_frame_" << setw(6) << setfill('0') << frameNumber << ".png";
-    return ss.str();
 }
 
 void displayProgressBar(int current, int total)
