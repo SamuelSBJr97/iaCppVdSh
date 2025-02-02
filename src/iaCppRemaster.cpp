@@ -6,6 +6,8 @@
 #include <queue>
 #include <condition_variable>
 #include <immintrin.h> // Para intrínsecos SIMD
+#include <sstream>
+#include <iomanip>
 
 using namespace cv;
 using namespace dnn_superres;
@@ -59,6 +61,26 @@ void processFrame(const Mat &frame, Mat &enhancedFrame, DnnSuperResImpl &sr)
     enhanceFrame(denoisedFrame, enhancedFrame, sr);
 }
 
+string generateFilename(const string &baseName, int frameNumber)
+{
+    stringstream ss;
+    ss << baseName << "_frame_" << setw(6) << setfill('0') << frameNumber << ".mp4";
+    return ss.str();
+}
+
+void savePartialVideo(const Mat &frame, const string &baseName, int frameNumber, int fourcc, double fps, int width, int height)
+{
+    string filename = generateFilename(baseName, frameNumber);
+    VideoWriter writer(filename, fourcc, fps, Size(width, height));
+    if (!writer.isOpened())
+    {
+        cerr << "Erro ao criar o vídeo parcial: " << filename << endl;
+        return;
+    }
+    writer.write(frame);
+    cout << "Salvando vídeo parcial: " << filename << endl;
+}
+
 void processVideo(const string &inputVideoPath, const string &outputVideoPath, DnnSuperResImpl &sr, int scale, int targetFPS)
 {
     cout << "Abrindo vídeo de entrada: " << inputVideoPath << endl;
@@ -89,6 +111,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
     queue<Mat> frameQueue;
     condition_variable cv;
     bool done = false;
+    int frameNumber = 0;
 
     auto worker = [&]()
     {
@@ -115,9 +138,11 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
                     for (const auto &interpolatedFrame : interpolatedFrames)
                     {
                         writer.write(interpolatedFrame);
+                        savePartialVideo(interpolatedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
                     }
                 }
                 writer.write(enhancedFrame);
+                savePartialVideo(enhancedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
                 prevFrame = enhancedFrame.clone();
                 firstFrame = false;
             }
