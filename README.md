@@ -4,6 +4,12 @@ Projeto de remasterização de videos antigos utilizando C++ no ambiente linux.
 
 O projeto foi feito para o https://colab.research.google.com/
 
+## Ações feitas
+
+- Remove ruidos;
+- Aumenta FPS;
+- Aumenta resolução;
+
 ## Modelo de treinamento para aumentar resolução
 
 [opencv_super_resolution_EDSR_x4.pb](https://github.com/SamuelSBJr97/iaCppRemaster/blob/main/assets/opencv_super_resolution_EDSR_x4.pb)
@@ -36,6 +42,8 @@ g++ -o iaCppRemaster/iaCppRemaster iaCppRemaster/src/iaCppRemaster.cpp `pkg-conf
 ```
 
 ### Testa o script gerado remasterizando um video de 8 segundos
+
+#### 4K de resolução
 ```bash
 iaCppRemaster/iaCppRemaster iaCppRemaster/assets/input.mkv iaCppRemaster/assets/output.mp4 iaCppRemaster/assets/opencv_super_resolution_EDSR_x4.pb edsr 4
 ```
