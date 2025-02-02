@@ -30,7 +30,7 @@ void savePartialImage(const Mat &frame, const string &baseName, int frameNumber)
 void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
 {
     // Aplicar super-resolução diretamente
-    //sr.upsample(inputFrame, outputFrame);
+    sr.upsample(inputFrame, outputFrame);
     cout << "Quadro aprimorado." << endl;
 }
 
