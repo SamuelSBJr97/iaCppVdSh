@@ -7,6 +7,4 @@ sudo apt install -y build-essential cmake git pkg-config libgtk-3-dev libavcodec
 # Instalar o OpenCV diretamente dos repositórios do Ubuntu
 sudo apt install -y libopencv-dev python3-opencv
 
-cd /content/iaCppRemaster
-
-g++ -o iaCppRemaster iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
+g++ -o iaCppRemaster iaCppRemaster/iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
