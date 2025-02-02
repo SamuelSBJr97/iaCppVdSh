@@ -94,9 +94,9 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
 
 int main(int argc, char **argv)
 {
-    if (argc < 7)
+    if (argc < 8)
     {
-        cerr << "Uso: " << argv[0] << " <inputVideoPath> <outputVideoPath> <modelPath> <modelName> <scale> <useGPU> <targetFPS>" << endl;
+        cerr << "Uso: " << argv[0] << " <inputVideoPath> <outputVideoPath> <modelPath> <modelName> <scale> <arquitetura> <targetFPS>" << endl;
         return -1;
     }
 
@@ -105,7 +105,7 @@ int main(int argc, char **argv)
     string modelPath = argv[3];
     string modelName = argv[4];
     int scale = stoi(argv[5]);
-    string useGPU = argv[6];
+    string arquitetura = argv[6];
     int targetFPS = stoi(argv[7]);
 
     // Inicializar o modelo de super-resolução uma vez
@@ -114,19 +114,19 @@ int main(int argc, char **argv)
     sr.setModel(modelName, scale);
 
     // Configurar para usar GPU ou CPU
-    if (useGPU == "gpu")
+    if (arquitetura == "gpu")
     {
         sr.setPreferableBackend(DNN_BACKEND_CUDA);
         sr.setPreferableTarget(DNN_TARGET_CUDA);
     }
-    else if (useGPU == "cpu")
+    else if (arquitetura == "cpu")
     {
         sr.setPreferableBackend(DNN_BACKEND_OPENCV);
         sr.setPreferableTarget(DNN_TARGET_CPU);
     }
     else
     {
-        cerr << "Opção inválida para useGPU: " << useGPU << ". Use 'cpu' ou 'gpu'." << endl;
+        cerr << "Opção inválida para arquitetura: " << arquitetura << ". Use 'cpu' ou 'gpu'." << endl;
         return -1;
     }
 
