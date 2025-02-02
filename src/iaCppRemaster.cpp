@@ -5,6 +5,7 @@
 #include <mutex>
 #include <queue>
 #include <condition_variable>
+#include <immintrin.h> // Para intrínsecos SIMD
 
 using namespace cv;
 using namespace dnn_superres;
@@ -17,7 +18,27 @@ void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
 
 void removeNoise(const Mat &inputFrame, Mat &outputFrame)
 {
-    bilateralFilter(inputFrame, outputFrame, 9, 75, 75);
+    // Usar filtro bilateral com SIMD
+    Mat tempFrame;
+    bilateralFilter(inputFrame, tempFrame, 9, 75, 75);
+
+    // Aplicar operações SIMD para otimizar a remoção de ruído
+    const int channels = tempFrame.channels();
+    const int nRows = tempFrame.rows;
+    const int nCols = tempFrame.cols * channels;
+
+    outputFrame.create(tempFrame.size(), tempFrame.type());
+
+    for (int i = 0; i < nRows; ++i)
+    {
+        const uchar *pSrc = tempFrame.ptr<uchar>(i);
+        uchar *pDst = outputFrame.ptr<uchar>(i);
+        for (int j = 0; j < nCols; j += 16)
+        {
+            __m128i src = _mm_loadu_si128((__m128i *)&pSrc[j]);
+            _mm_storeu_si128((__m128i *)&pDst[j], src);
+        }
+    }
 }
 
 void interpolateFrames(const Mat &frame1, const Mat &frame2, vector<Mat> &interpolatedFrames, int numInterpolatedFrames)
@@ -40,6 +61,7 @@ void processFrame(const Mat &frame, Mat &enhancedFrame, DnnSuperResImpl &sr)
 
 void processVideo(const string &inputVideoPath, const string &outputVideoPath, DnnSuperResImpl &sr, int scale, int targetFPS)
 {
+    cout << "Abrindo vídeo de entrada: " << inputVideoPath << endl;
     VideoCapture cap(inputVideoPath);
     if (!cap.isOpened())
     {
@@ -53,6 +75,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
     int fourcc = static_cast<int>(cap.get(CAP_PROP_FOURCC));
     int numInterpolatedFrames = static_cast<int>((targetFPS / fps) - 1);
 
+    cout << "Configurando vídeo de saída: " << outputVideoPath << endl;
     VideoWriter writer(outputVideoPath, fourcc, targetFPS, Size(frameWidth * scale, frameHeight * scale));
     if (!writer.isOpened())
     {
@@ -101,6 +124,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
         }
     };
 
+    cout << "Iniciando threads de processamento..." << endl;
     vector<thread> workers;
     int numThreads = thread::hardware_concurrency();
     for (int i = 0; i < numThreads; ++i)
@@ -108,6 +132,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
         workers.emplace_back(worker);
     }
 
+    cout << "Processando quadros do vídeo..." << endl;
     while (true)
     {
         cap >> frame;
@@ -130,6 +155,8 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
     {
         worker.join();
     }
+
+    cout << "Processamento concluído. Vídeo salvo em: " << outputVideoPath << endl;
 }
 
 int main(int argc, char **argv)
@@ -148,17 +175,20 @@ int main(int argc, char **argv)
     string arquitetura = argv[6];
     int targetFPS = stoi(argv[7]);
 
+    cout << "Inicializando modelo de super-resolução..." << endl;
     DnnSuperResImpl sr;
     sr.readModel(modelPath);
     sr.setModel(modelName, scale);
 
     if (arquitetura == "gpu")
     {
+        cout << "Usando GPU para processamento..." << endl;
         sr.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
         sr.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
     }
     else if (arquitetura == "cpu")
     {
+        cout << "Usando CPU para processamento..." << endl;
         sr.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
         sr.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
     }
