@@ -74,5 +74,5 @@ iaCppRemaster/iaCppRemaster iaCppRemaster/assets/input.mkv iaCppRemaster/assets/
 
 ##### 4K de resolução na GPU com 60FPS no modelo edsr
 ```bash
-iaCppRemaster/iaCppRemaster iaCppRemaster/assets/input.mkv iaCppRemaster/assets/output.mp4 iaCppRemaster/assets/opencv_super_resolution_EDSR_x4.pb edsr 2 gpu 60
+iaCppRemaster/iaCppRemaster iaCppRemaster/assets/input.mkv iaCppRemaster/assets/output.mp4 iaCppRemaster/assets/opencv_super_resolution_EDSR_x4.pb edsr 4 gpu 60
 ```
