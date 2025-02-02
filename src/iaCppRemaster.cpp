@@ -60,21 +60,38 @@ void processFrame(const Mat &frame, Mat &enhancedFrame, DnnSuperResImpl &sr)
 string generateFilename(const string &baseName, int frameNumber)
 {
     stringstream ss;
-    ss << baseName << "_frame_" << setw(6) << setfill('0') << frameNumber << ".mp4";
+    ss << baseName << "_frame_" << setw(6) << setfill('0') << frameNumber << ".png";
     return ss.str();
 }
 
-void savePartialVideo(const Mat &frame, const string &baseName, int frameNumber, int fourcc, double fps, int width, int height)
+void savePartialImage(const Mat &frame, const string &baseName, int frameNumber)
 {
     string filename = generateFilename(baseName, frameNumber);
-    VideoWriter writer(filename, fourcc, fps, Size(width, height));
-    if (!writer.isOpened())
+    if (!imwrite(filename, frame))
     {
-        cerr << "Erro ao criar o vídeo parcial: " << filename << endl;
+        cerr << "Erro ao salvar a imagem parcial: " << filename << endl;
         return;
     }
-    writer.write(frame);
-    cout << "Salvando vídeo parcial: " << filename << endl;
+    cout << "Salvando imagem parcial: " << filename << endl;
+}
+
+void displayProgressBar(int current, int total)
+{
+    int barWidth = 70;
+    float progress = (float)current / total;
+    cout << "[";
+    int pos = barWidth * progress;
+    for (int i = 0; i < barWidth; ++i)
+    {
+        if (i < pos)
+            cout << "=";
+        else if (i == pos)
+            cout << ">";
+        else
+            cout << " ";
+    }
+    cout << "] " << int(progress * 100.0) << " %\r";
+    cout.flush();
 }
 
 void processVideo(const string &inputVideoPath, const string &outputVideoPath, DnnSuperResImpl &sr, int scale, int targetFPS)
@@ -92,6 +109,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
     double fps = cap.get(CAP_PROP_FPS);
     int fourcc = static_cast<int>(cap.get(CAP_PROP_FOURCC));
     int numInterpolatedFrames = static_cast<int>((targetFPS / fps) - 1);
+    int totalFrames = static_cast<int>(cap.get(CAP_PROP_FRAME_COUNT));
 
     cout << "Configurando vídeo de saída: " << outputVideoPath << endl;
     VideoWriter writer(outputVideoPath, fourcc, targetFPS, Size(frameWidth * scale, frameHeight * scale));
@@ -118,22 +136,25 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
         {
             vector<Mat> interpolatedFrames;
             interpolateFrames(prevFrame, enhancedFrame, interpolatedFrames, numInterpolatedFrames);
-            for (const auto &interpolatedFrame : interpolatedFrames)
+            for (int i = 0; i < interpolatedFrames.size(); ++i)
             {
-                writer.write(interpolatedFrame);
-                savePartialVideo(interpolatedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
+                writer.write(interpolatedFrames[i]);
+                savePartialImage(interpolatedFrames[i], outputVideoPath, frameNumber++);
+                cout << "Quadro interpolado salvo: " << i + 1 << " de " << interpolatedFrames.size() << endl;
             }
         }
 
         writer.write(enhancedFrame);
-        savePartialVideo(enhancedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
+        savePartialImage(enhancedFrame, outputVideoPath, frameNumber++);
         prevFrame = enhancedFrame.clone();
         firstFrame = false;
 
         cout << "Quadro processado: " << frameNumber << endl;
+        displayProgressBar(frameNumber, totalFrames);
     }
 
-    cout << "Processamento concluído. Vídeo salvo em: " << outputVideoPath << endl;
+    cout << endl
+         << "Processamento concluído. Vídeo salvo em: " << outputVideoPath << endl;
 }
 
 int main(int argc, char **argv)
