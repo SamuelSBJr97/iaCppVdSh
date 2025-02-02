@@ -1,10 +1,6 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/dnn_superres.hpp>
 #include <iostream>
-#include <thread>
-#include <mutex>
-#include <queue>
-#include <condition_variable>
 #include <immintrin.h> // Para intrínsecos SIMD
 #include <sstream>
 #include <iomanip>
@@ -107,55 +103,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
 
     Mat frame, enhancedFrame, prevFrame;
     bool firstFrame = true;
-    mutex mtx;
-    queue<Mat> frameQueue;
-    condition_variable cv;
-    bool done = false;
     int frameNumber = 0;
-
-    auto worker = [&]()
-    {
-        while (true)
-        {
-            Mat frame;
-            {
-                unique_lock<mutex> lock(mtx);
-                cv.wait(lock, [&]()
-                        { return !frameQueue.empty() || done; });
-                if (done && frameQueue.empty())
-                    break;
-                frame = frameQueue.front();
-                frameQueue.pop();
-            }
-            Mat enhancedFrame;
-            processFrame(frame, enhancedFrame, sr);
-            {
-                lock_guard<mutex> lock(mtx);
-                if (!firstFrame)
-                {
-                    vector<Mat> interpolatedFrames;
-                    interpolateFrames(prevFrame, enhancedFrame, interpolatedFrames, numInterpolatedFrames);
-                    for (const auto &interpolatedFrame : interpolatedFrames)
-                    {
-                        writer.write(interpolatedFrame);
-                        savePartialVideo(interpolatedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
-                    }
-                }
-                writer.write(enhancedFrame);
-                savePartialVideo(enhancedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
-                prevFrame = enhancedFrame.clone();
-                firstFrame = false;
-            }
-        }
-    };
-
-    cout << "Iniciando threads de processamento..." << endl;
-    vector<thread> workers;
-    int numThreads = thread::hardware_concurrency();
-    for (int i = 0; i < numThreads; ++i)
-    {
-        workers.emplace_back(worker);
-    }
 
     cout << "Processando quadros do vídeo..." << endl;
     while (true)
@@ -163,23 +111,26 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
         cap >> frame;
         if (frame.empty())
             break;
+
+        processFrame(frame, enhancedFrame, sr);
+
+        if (!firstFrame)
         {
-            lock_guard<mutex> lock(mtx);
-            frameQueue.push(frame);
+            vector<Mat> interpolatedFrames;
+            interpolateFrames(prevFrame, enhancedFrame, interpolatedFrames, numInterpolatedFrames);
+            for (const auto &interpolatedFrame : interpolatedFrames)
+            {
+                writer.write(interpolatedFrame);
+                savePartialVideo(interpolatedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
+            }
         }
-        cv.notify_one();
-        cout << "Quadro lido e adicionado à fila: " << frameNumber << endl;
-    }
 
-    {
-        lock_guard<mutex> lock(mtx);
-        done = true;
-    }
-    cv.notify_all();
+        writer.write(enhancedFrame);
+        savePartialVideo(enhancedFrame, outputVideoPath, frameNumber++, fourcc, targetFPS, frameWidth * scale, frameHeight * scale);
+        prevFrame = enhancedFrame.clone();
+        firstFrame = false;
 
-    for (auto &worker : workers)
-    {
-        worker.join();
+        cout << "Quadro processado: " << frameNumber << endl;
     }
 
     cout << "Processamento concluído. Vídeo salvo em: " << outputVideoPath << endl;
