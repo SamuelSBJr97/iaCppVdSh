@@ -116,13 +116,13 @@ int main(int argc, char **argv)
     // Configurar para usar GPU ou CPU
     if (arquitetura == "gpu")
     {
-        sr.setPreferableBackend(DNN_BACKEND_CUDA);
-        sr.setPreferableTarget(DNN_TARGET_CUDA);
+        sr.setPreferableBackend(cv::dnn::DNN_BACKEND_CUDA);
+        sr.setPreferableTarget(cv::dnn::DNN_TARGET_CUDA);
     }
     else if (arquitetura == "cpu")
     {
-        sr.setPreferableBackend(DNN_BACKEND_OPENCV);
-        sr.setPreferableTarget(DNN_TARGET_CPU);
+        sr.setPreferableBackend(cv::dnn::DNN_BACKEND_OPENCV);
+        sr.setPreferableTarget(cv::dnn::DNN_TARGET_CPU);
     }
     else
     {
