@@ -168,6 +168,7 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
             frameQueue.push(frame);
         }
         cv.notify_one();
+        cout << "Quadro lido e adicionado à fila: " << frameNumber << endl;
     }
 
     {
