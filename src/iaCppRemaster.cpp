@@ -32,7 +32,7 @@ void enhanceFrame(const Mat &inputFrame, Mat &outputFrame, DnnSuperResImpl &sr)
     // Aplicar super-resolução diretamente
     // sr.upsample(inputFrame, outputFrame);
     outputFrame = inputFrame.clone(); // Apenas clonar o quadro de entrada para saída
-    cout << "Quadro aprimorado (super-resolução desativada)." << endl;
+    // cout << "Quadro aprimorado (super-resolução desativada)." << endl;
 }
 
 void removeNoise(const Mat &inputFrame, Mat &outputFrame, const string &baseName, int frameNumber)
@@ -57,11 +57,11 @@ void removeNoise(const Mat &inputFrame, Mat &outputFrame, const string &baseName
             __m128i src = _mm_loadu_si128((__m128i *)&pSrc[j]);
             _mm_storeu_si128((__m128i *)&pDst[j], src);
         }
-        cout << "Removendo ruído: linha " << i + 1 << " de " << nRows << endl;
+        // cout << "Removendo ruído: linha " << i + 1 << " de " << nRows << endl;
     }
 
     // Salvar imagem parcial após remover ruído
-    savePartialImage(outputFrame, baseName, frameNumber);
+    // savePartialImage(outputFrame, baseName, frameNumber);
 }
 
 void interpolateFrames(const Mat &frame1, const Mat &frame2, vector<Mat> &interpolatedFrames, int numInterpolatedFrames)
@@ -72,7 +72,7 @@ void interpolateFrames(const Mat &frame1, const Mat &frame2, vector<Mat> &interp
         Mat interpolatedFrame;
         addWeighted(frame1, 1.0 - alpha, frame2, alpha, 0.0, interpolatedFrame);
         interpolatedFrames.push_back(interpolatedFrame);
-        cout << "Interpolação de quadros: " << i << " de " << numInterpolatedFrames << endl;
+        // cout << "Interpolação de quadros: " << i << " de " << numInterpolatedFrames << endl;
     }
 }
 
@@ -147,17 +147,17 @@ void processVideo(const string &inputVideoPath, const string &outputVideoPath, D
             for (int i = 0; i < interpolatedFrames.size(); ++i)
             {
                 writer.write(interpolatedFrames[i]);
-                savePartialImage(interpolatedFrames[i], outputVideoPath, frameNumber++);
-                cout << "Quadro interpolado salvo: " << i + 1 << " de " << interpolatedFrames.size() << endl;
+                // savePartialImage(interpolatedFrames[i], outputVideoPath, frameNumber++);
+                // cout << "Quadro interpolado salvo: " << i + 1 << " de " << interpolatedFrames.size() << endl;
             }
         }
 
         writer.write(enhancedFrame);
-        savePartialImage(enhancedFrame, outputVideoPath, frameNumber++);
+        // savePartialImage(enhancedFrame, outputVideoPath, frameNumber++);
         prevFrame = enhancedFrame.clone();
         firstFrame = false;
 
-        cout << "Quadro processado: " << frameNumber << endl;
+        // cout << "Quadro processado: " << frameNumber << endl;
         displayProgressBar(frameNumber, totalFrames);
     }
 
