@@ -23,6 +23,4 @@ make -j$(nproc)
 sudo make install
 sudo ldconfig
 
-cd /content/iaCppRemaster
-
-g++ -o iaCppRemaster iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
+g++ -o /content/iaCppRemaster/iaCppRemaster /content/iaCppRemaster/src/iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
