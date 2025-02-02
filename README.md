@@ -7,7 +7,7 @@ O projeto foi feito para o https://colab.research.google.com/
 ## Ações feitas
 
 - Remove ruidos;
-- Aumenta FPS;
+- Interpolação de quadros;
 - Aumenta resolução;
 
 ## Modelo de treinamento para aumentar resolução
