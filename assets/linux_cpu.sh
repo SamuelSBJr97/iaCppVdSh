@@ -8,3 +8,5 @@ sudo apt install -y build-essential cmake git pkg-config libgtk-3-dev libavcodec
 sudo apt install -y libopencv-dev python3-opencv
 
 g++ -o /content/iaCppRemaster/iaCppRemaster /content/iaCppRemaster/src/iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
+
+g++ -o /content/iaCppRemaster/iaCppVerticalFill /content/iaCppRemaster/src/iaCppVerticalFill.cpp `pkg-config --cflags --libs opencv4`
