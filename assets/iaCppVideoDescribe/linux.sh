@@ -44,7 +44,7 @@ echo "Pipeline compilado com sucesso!"
 echo "Pipeline compilado com sucesso!"
 
 # Diretório onde o modelo será salvo
-MODEL_DIR="./yolov5_model"
+MODEL_DIR="./"
 MODEL_PATH="${MODEL_DIR}/yolov5s.pt"
 TORCHSCRIPT_MODEL_PATH="${MODEL_DIR}/yolov5s_scripted.pt"
 
