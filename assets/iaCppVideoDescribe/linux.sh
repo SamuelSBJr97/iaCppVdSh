@@ -40,4 +40,106 @@ make
 
 # Mensagem de sucesso
 echo "Pipeline compilado com sucesso!"
-echo "Para executar o programa, use: ./video_pipeline <caminho_do_video> <caminho_do_modelo>"
+
+echo "Pipeline compilado com sucesso!"
+
+# Diretório onde o modelo será salvo
+MODEL_DIR="./yolov5_model"
+MODEL_PATH="${MODEL_DIR}/yolov5s.pt"
+TORCHSCRIPT_MODEL_PATH="${MODEL_DIR}/yolov5s_scripted.pt"
+
+# Verificar se o diretório de modelos existe, caso contrário, criar
+if [ ! -d "$MODEL_DIR" ]; then
+  mkdir -p "$MODEL_DIR"
+fi
+
+# Baixar o modelo YOLOv5 pré-treinado (modelo mais leve)
+echo "Baixando o modelo YOLOv5..."
+wget -O "$MODEL_PATH" https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt
+
+# Verificar se o PyTorch e o repositório YOLOv5 estão instalados para converter para TorchScript
+echo "Verificando dependências..."
+
+# Instalar dependências (PyTorch e YOLOv5)
+pip install torch
+pip install git+https://github.com/ultralytics/yolov5.git
+
+# Script para converter o modelo para o formato TorchScript
+echo "Convertendo o modelo para o formato TorchScript..."
+
+# Python script para carregar o modelo YOLOv5 e exportá-lo como TorchScript
+python3 - <<EOF
+import torch
+from models.common import DetectMultiBackend
+
+# Carregar o modelo YOLOv5
+model = DetectMultiBackend('$MODEL_PATH', device='cpu')  # Use 'cuda' se estiver usando GPU
+
+# Converter o modelo para o formato TorchScript
+scripted_model = model.model.to('cpu').half().eval()  # Mover para CPU e modo eval
+scripted_model = torch.jit.script(scripted_model)  # Convertendo para TorchScript
+
+# Salvar o modelo TorchScript
+scripted_model.save('$TORCHSCRIPT_MODEL_PATH')
+
+EOF
+
+# Verificação final
+if [ -f "$TORCHSCRIPT_MODEL_PATH" ]; then
+    echo "Modelo TorchScript salvo com sucesso em $TORCHSCRIPT_MODEL_PATH."
+else
+    echo "Erro ao converter o modelo para TorchScript."
+fi
+
+# Nome do arquivo de saída
+OUTPUT="../iaCppVideoDescribe"
+
+# Caminho para o código-fonte
+SOURCE="../src/iaCppVideoDescribe.cpp"
+
+# Caminho para o diretório da LibTorch
+LIBTORCH_DIR="/path/to/libtorch"
+
+# Caminho para o OpenCV (caso necessário, ajuste para o sistema)
+OPENCV_INCLUDE="/usr/include/opencv4"
+OPENCV_LIB="/usr/lib"
+
+# Flags de compilação
+CXX=g++
+CXXFLAGS="-std=c++17 -fopenmp -O2"
+INCLUDE_FLAGS="-I${LIBTORCH_DIR}/include -I${LIBTORCH_DIR}/include/torch/csrc/api/include -I${OPENCV_INCLUDE}"
+LIB_FLAGS="-L${LIBTORCH_DIR}/lib -ltorch -ltorch_cpu -lc10 -L${OPENCV_LIB} -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_highgui"
+
+# Checando se os caminhos estão configurados corretamente
+if [ ! -d "$LIBTORCH_DIR" ]; then
+    echo "Erro: Diretório da LibTorch não encontrado em $LIBTORCH_DIR"
+    exit 1
+fi
+
+if [ ! -d "$OPENCV_INCLUDE" ]; then
+    echo "Erro: Diretório de cabeçalhos do OpenCV não encontrado em $OPENCV_INCLUDE"
+    exit 1
+fi
+
+if [ ! -d "$OPENCV_LIB" ]; then
+    echo "Erro: Diretório de bibliotecas do OpenCV não encontrado em $OPENCV_LIB"
+    exit 1
+fi
+
+# Exportando variáveis para o linker
+export LD_LIBRARY_PATH=${LIBTORCH_DIR}/lib:$LD_LIBRARY_PATH
+
+# Comando de compilação
+echo "Compilando o código..."
+$CXX $CXXFLAGS $INCLUDE_FLAGS $SOURCE -o $OUTPUT $LIB_FLAGS
+
+# Verificação do resultado
+if [ $? -eq 0 ]; then
+    echo "Compilação concluída com sucesso! O executável foi gerado como './$OUTPUT'."
+else
+    echo "Erro na compilação."
+    exit 1
+fi
+
+echo "Modelo TorchScript salvo em $TORCHSCRIPT_MODEL_PATH."
+echo "Para executar o programa, use: iaCppVdSh/video_pipeline <caminho_do_video> <caminho_do_modelo>"
