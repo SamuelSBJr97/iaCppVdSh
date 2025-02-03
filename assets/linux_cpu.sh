@@ -21,6 +21,7 @@ echo "Baixando o OpenVINO..."
 OPENVINO_VERSION="ubuntu20_2024.0.0.14509.34caeefd078"
 OPENVINO_FILE="l_openvino_toolkit_${OPENVINO_VERSION}_x86_64.tgz"
 OPENVINO_URL="https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.0/linux/$OPENVINO_FILE"
+OPENVINO_DIR="/content/l_openvino_toolkit_${OPENVINO_VERSION}_x86_64"
 
 wget -O "$OPENVINO_FILE" "$OPENVINO_URL"
 
@@ -42,4 +43,8 @@ echo "Instalação do OpenVINO concluída com sucesso!"
 
 g++ -o /content/iaCppRemaster/iaCppRemaster /content/iaCppRemaster/src/iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
 
-g++ -o /content/iaCppRemaster/iaCppVerticalFill /content/iaCppRemaster/src/iaCppVerticalFill.cpp std=c++17 `pkg-config --cflags --libs opencv4` -fopenmp -I/opt/intel/openvino_2024/runtime/include -L/opt/intel/openvino_2024/runtime/lib/intel64 -lopenvino
+g++ -o /content/iaCppRemaster/iaCppVerticalFill /content/iaCppRemaster/src/iaCppVerticalFill.cpp \
+    -I${OPENVINO_DIR}/runtime/include \
+    -L${OPENVINO_DIR}/runtime/lib/intel64 \
+    -lopenvino \
+    -lpython3.8 -lprotobuf -lssl -lcrypto -lstdc++ -lpthread -ldl
