@@ -1,4 +1,4 @@
-#!/bin/bash
+ok#!/bin/bash
 
 # Atualizar e instalar dependências básicas
 sudo apt update
@@ -9,4 +9,4 @@ sudo apt install -y libopencv-dev python3-opencv
 
 g++ -o /content/iaCppRemaster/iaCppRemaster /content/iaCppRemaster/src/iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
 
-g++ -o /content/iaCppRemaster/iaCppVerticalFill /content/iaCppRemaster/src/iaCppVerticalFill.cpp `pkg-config --cflags --libs opencv4`
+g++ -o /content/iaCppRemaster/iaCppVerticalFill /content/iaCppRemaster/src/iaCppVerticalFill.cpp std=c++17 `pkg-config --cflags --libs opencv4` -fopenmp -I/opt/intel/openvino_2024/runtime/include -L/opt/intel/openvino_2024/runtime/lib/intel64 -lopenvino
