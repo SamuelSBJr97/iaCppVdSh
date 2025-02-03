@@ -26,7 +26,7 @@ Dados de exemplo: [opencv_super_resolution_FSRCNN_x2.pb](./assets/opencv_super_r
 
 #### Instala biblitoecas
 ```bash
-apt-get update && apt-get -y libopencv-dev python3-opencv build-essential ffmpeg libavcodec-dev libavformat-dev libswscale-dev
+iaCppRemaster/assets/linux_cpu.sh
 ```
 
 #### Clona projeto
