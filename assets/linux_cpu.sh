@@ -7,17 +7,12 @@ sudo apt install -y build-essential cmake git pkg-config libgtk-3-dev libavcodec
 # Instalar o OpenCV diretamente dos repositórios do Ubuntu
 sudo apt install -y libopencv-dev python3-opencv libomp-dev
 
-echo "Baixando e instalando OpenVINO..."
-OPENVINO_VERSION="2024.0.0.16972"
-OPENVINO_FILE="l_openvino_toolkit_${OPENVINO_VERSION}_x86_64.tgz"
-OPENVINO_URL="https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.0/linux/$OPENVINO_FILE"
+pip install openvino-colab
 
-echo "Configurando OpenVINO..."
-echo "source /opt/intel/openvino_2024/setupvars.sh" >> ~/.bashrc
-source /opt/intel/openvino_2024/setupvars.sh
-
-echo "Limpeza de arquivos temporários..."
-#rm -rf "$OPENVINO_FILE" "l_openvino_toolkit_${OPENVINO_VERSION}_x86_64"
+python3 << EOF
+import openvino_colab
+openvino_colab.install_openvino()
+EOF
 
 g++ -o /content/iaCppRemaster/iaCppRemaster /content/iaCppRemaster/src/iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
 
