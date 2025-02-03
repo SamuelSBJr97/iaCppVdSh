@@ -17,7 +17,7 @@ echo "source /opt/intel/openvino_2024/setupvars.sh" >> ~/.bashrc
 source /opt/intel/openvino_2024/setupvars.sh
 
 echo "Limpeza de arquivos temporários..."
-rm -rf "$OPENVINO_FILE" "l_openvino_toolkit_${OPENVINO_VERSION}_x86_64"
+#rm -rf "$OPENVINO_FILE" "l_openvino_toolkit_${OPENVINO_VERSION}_x86_64"
 
 g++ -o /content/iaCppRemaster/iaCppRemaster /content/iaCppRemaster/src/iaCppRemaster.cpp `pkg-config --cflags --libs opencv4`
 
