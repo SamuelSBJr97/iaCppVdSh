@@ -18,7 +18,7 @@ sudo apt install -y git
 
 # Baixando o OpenVINO
 echo "Baixando o OpenVINO..."
-OPENVINO_VERSION="2024.0.0.16972"
+OPENVINO_VERSION="ubuntu20_2024.0.0.14509.34caeefd078"
 OPENVINO_FILE="l_openvino_toolkit_${OPENVINO_VERSION}_x86_64.tgz"
 OPENVINO_URL="https://storage.openvinotoolkit.org/repositories/openvino/packages/2024.0/linux/$OPENVINO_FILE"
 
