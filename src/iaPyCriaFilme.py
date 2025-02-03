@@ -1,55 +1,46 @@
 import cv2
-import whisper
-from transformers import CLIPProcessor, CLIPModel, GPT2LMHeadModel, GPT2Tokenizer
-import torch
-from diffusers import StableDiffusionPipeline
+import numpy as np
+from moviepy.editor import VideoFileClip
+from transformers import pipeline
+import os
 
-# Inicialização de modelos
-clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
-stable_diffusion = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4")
-whisper_model = whisper.load_model("base")
-
-def analyze_film(video_path):
-    """
-    Extrai metadados, frames e texto de um filme.
-    """
-    cap = cv2.VideoCapture(video_path)
-    frame_rate = int(cap.get(cv2.CAP_PROP_FPS))
+# Função para analisar um filme existente
+def analyze_film(input_path):
     frames = []
-    text_transcripts = []
-    
-    while True:
+    transcripts = []
+
+    # Extrair quadros do filme
+    cap = cv2.VideoCapture(input_path)
+    while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
             break
         frames.append(frame)
-    
-    # Convertendo áudio em texto
-    audio_path = "audio_temp.wav"
     cap.release()
-    whisper_result = whisper_model.transcribe(audio_path)
-    text_transcripts.append(whisper_result["text"])
-    
-    return frames, text_transcripts
 
-def generate_scene(prompt):
-    """
-    Gera uma cena de filme baseada no texto.
-    """
-    # Gera uma imagem baseada no prompt
-    image = stable_diffusion(prompt).images[0]
-    return image
+    # Simulação de transcrições (substitua isso com a extração real de transcrições, se disponível)
+    transcripts = ["Cena 1: Uma floresta sombria e misteriosa.", 
+                   "Cena 2: A câmera foca em uma figura solitária caminhando.", 
+                   "Cena 3: Uma batalha épica começa enquanto relâmpagos cortam o céu.", 
+                   "Cena 4: O protagonista encontra um antigo templo iluminado por tochas."]
 
-def create_film(script, output_path):
-    """
-    Gera um filme completo a partir de um roteiro em texto.
-    """
+    return frames, transcripts
+
+# Função para criar um filme baseado em um roteiro
+def create_film(script, output_path, learned_frames):
     frames = []
-    for scene in script.split("\n\n"):
-        frame = generate_scene(scene)
-        frames.append(cv2.cvtColor(np.array(frame), cv2.COLOR_RGB2BGR))
-    
+
+    # Usar pipeline de geração de imagens do transformers
+    image_generator = pipeline("image-generation")
+
+    # Gerar quadros com base no script
+    for line in script.split('\n'):
+        if line.strip():
+            # Gerar uma imagem com base na descrição da cena
+            generated_image = image_generator(line.strip(), num_return_sequences=1)[0]['generated_image']
+            frame = cv2.cvtColor(np.array(generated_image), cv2.COLOR_RGB2BGR)
+            frames.append(frame)
+
     # Criação do vídeo
     height, width, _ = frames[0].shape
     out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), 24, (width, height))
@@ -61,7 +52,7 @@ def create_film(script, output_path):
 # Exemplo de uso
 if __name__ == "__main__":
     # Analisando um filme existente
-    frames, transcripts = analyze_film("input_movie.mkv")
+    learned_frames, transcripts = analyze_film("input_movie.mkv")
     
     # Criando um filme baseado em um roteiro
     script = """
@@ -71,4 +62,4 @@ if __name__ == "__main__":
     
     O protagonista encontra um antigo templo iluminado por tochas.
     """
-    create_film(script, "output_movie.mp4")
+    create_film(script, "output_movie.mp4", learned_frames)
