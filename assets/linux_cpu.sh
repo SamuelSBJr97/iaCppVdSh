@@ -32,7 +32,7 @@ sudo "./l_openvino_toolkit_${OPENVINO_VERSION}_x86_64/install_dependencies/insta
 
 # Configurando variáveis de ambiente do OpenVINO
 echo "Configurando OpenVINO..."
-source "./l_openvino_toolkit_${OPENVINO_VERSION}_x86_64/install_dependencies/setupvars.sh"
+source "./l_openvino_toolkit_${OPENVINO_VERSION}_x86_64/setupvars.sh"
 
 # Limpando arquivos temporários
 cd ..
