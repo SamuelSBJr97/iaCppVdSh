@@ -28,7 +28,7 @@ wget -O "$OPENVINO_FILE" "$OPENVINO_URL"
 tar -xvzf "$OPENVINO_FILE"
 
 # Instalando OpenVINO
-sudo "./l_openvino_toolkit_${OPENVINO_VERSION}_x86_64/install.sh"
+sudo "./l_openvino_toolkit_${OPENVINO_VERSION}_x86_64/install_dependencies/install_openvino_dependencies.sh"
 
 # Configurando variáveis de ambiente do OpenVINO
 echo "Configurando OpenVINO..."
