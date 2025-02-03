@@ -1,65 +1,78 @@
 import cv2
-import numpy as np
-from moviepy.editor import VideoFileClip
-from transformers import pipeline
 import os
+import whisper
 
-# Função para analisar um filme existente
-def analyze_film(input_path):
+# Inicializa o modelo Whisper
+whisper_model = whisper.load_model("base")
+
+def transcribe_audio(audio_path):
+    """
+    Transcreve áudio para texto usando Whisper.
+    """
+    print(f"Transcrevendo o áudio: {audio_path}")
+    result = whisper_model.transcribe(audio_path)
+    return result["text"]
+
+def extract_audio_from_video(video_path, audio_path="audio_temp.wav"):
+    """
+    Extrai o áudio de um arquivo de vídeo e o salva como WAV.
+    """
+    print(f"Extraindo áudio do vídeo: {video_path}")
+    command = f"ffmpeg -i {video_path} -q:a 0 -map a {audio_path} -y"
+    os.system(command)
+    if not os.path.exists(audio_path):
+        raise FileNotFoundError(f"Erro ao extrair áudio do vídeo: {audio_path} não encontrado.")
+    return audio_path
+
+def extract_frames_from_video(video_path):
+    """
+    Extrai frames do vídeo.
+    """
+    print(f"Extraindo frames do vídeo: {video_path}")
+    cap = cv2.VideoCapture(video_path)
     frames = []
-    transcripts = []
+    frame_rate = int(cap.get(cv2.CAP_PROP_FPS))
+    frame_count = 0
 
-    # Extrair quadros do filme
-    cap = cv2.VideoCapture(input_path)
-    while cap.isOpened():
+    while True:
         ret, frame = cap.read()
         if not ret:
             break
         frames.append(frame)
+        frame_count += 1
+
     cap.release()
+    print(f"Número total de frames extraídos: {frame_count}")
+    return frames, frame_rate
 
-    # Simulação de transcrições (substitua isso com a extração real de transcrições, se disponível)
-    transcripts = ["Cena 1: Uma floresta sombria e misteriosa.", 
-                   "Cena 2: A câmera foca em uma figura solitária caminhando.", 
-                   "Cena 3: Uma batalha épica começa enquanto relâmpagos cortam o céu.", 
-                   "Cena 4: O protagonista encontra um antigo templo iluminado por tochas."]
-
-    return frames, transcripts
-
-# Função para criar um filme baseado em um roteiro
-def create_film(script, output_path, learned_frames):
-    frames = []
-
-    # Usar pipeline de geração de imagens do transformers
-    image_generator = pipeline("image-generation")
-
-    # Gerar quadros com base no script
-    for line in script.split('\n'):
-        if line.strip():
-            # Gerar uma imagem com base na descrição da cena
-            generated_image = image_generator(line.strip(), num_return_sequences=1)[0]['generated_image']
-            frame = cv2.cvtColor(np.array(generated_image), cv2.COLOR_RGB2BGR)
-            frames.append(frame)
-
-    # Criação do vídeo
-    height, width, _ = frames[0].shape
-    out = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), 24, (width, height))
-    
-    for frame in frames:
-        out.write(frame)
-    out.release()
-
-# Exemplo de uso
-if __name__ == "__main__":
-    # Analisando um filme existente
-    learned_frames, transcripts = analyze_film("input_movie.mkv")
-    
-    # Criando um filme baseado em um roteiro
-    script = """
-    Uma floresta sombria e misteriosa. A câmera foca em uma figura solitária caminhando.
-    
-    Uma batalha épica começa enquanto relâmpagos cortam o céu.
-    
-    O protagonista encontra um antigo templo iluminado por tochas.
+def analyze_film(video_path):
     """
-    create_film(script, "output_movie.mp4", learned_frames)
+    Processa o vídeo para extrair frames e transcrever o áudio.
+    """
+    try:
+        # Extrair frames
+        frames, frame_rate = extract_frames_from_video(video_path)
+
+        # Extrair e transcrever áudio
+        audio_path = extract_audio_from_video(video_path)
+        transcript = transcribe_audio(audio_path)
+
+        return frames, frame_rate, transcript
+    except Exception as e:
+        print(f"Erro ao processar o vídeo: {e}")
+        return None, None, None
+
+if __name__ == "__main__":
+    # Caminho do vídeo de entrada
+    video_path = "input_movie.mp4"
+
+    # Processa o vídeo
+    frames, frame_rate, transcript = analyze_film(video_path)
+
+    if frames is not None and transcript is not None:
+        print("\nTranscrição do áudio:")
+        print(transcript)
+        print(f"\nNúmero de frames extraídos: {len(frames)}")
+        print(f"Taxa de quadros (FPS): {frame_rate}")
+    else:
+        print("Falha no processamento do vídeo.")
