@@ -1,4 +1,4 @@
-ok#!/bin/bash
+#!/bin/bash
 
 # Atualizar e instalar dependências básicas
 sudo apt update
