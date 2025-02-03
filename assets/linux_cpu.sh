@@ -45,6 +45,8 @@ g++ -o /content/iaCppRemaster/iaCppRemaster /content/iaCppRemaster/src/iaCppRema
 
 g++ -o /content/iaCppRemaster/iaCppVerticalFill /content/iaCppRemaster/src/iaCppVerticalFill.cpp \
     -I${OPENVINO_DIR}/runtime/include \
+    -I/usr/include/opencv4 \
     -L${OPENVINO_DIR}/runtime/lib/intel64 \
-    -lopenvino \
+    -L/usr/lib/x86_64-linux-gnu \
+    -lopenvino -lopencv_core -lopencv_imgproc -lopencv_highgui \
     -lpython3.8 -lprotobuf -lssl -lcrypto -lstdc++ -lpthread -ldl
