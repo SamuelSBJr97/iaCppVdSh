@@ -89,6 +89,7 @@ if grep -q "#include <torch/parallel.h>" "iaCppVdSh/src/iaCppVideoDescribe.cpp";
 fi
 
 echo "Compilando Torch"
+rm -rf build
 mkdir -p build
 cmake -DCMAKE_PREFIX_PATH=build/$LIBTORCH_DIR ..
 make -j$(nproc)
