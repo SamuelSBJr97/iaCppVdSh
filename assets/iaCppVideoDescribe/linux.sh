@@ -5,10 +5,10 @@
 set -e  # Para o script em caso de erro
 
 # Atualizar o sistema
-sudo apt update && sudo apt upgrade -y
+apt update && sudo apt upgrade -y
 
 # Instalar dependências essenciais
-sudo apt install -y build-essential cmake git wget unzip libopencv-dev
+apt install -y build-essential cmake git wget unzip libopencv-dev
 
 # Instalar OpenCV
 if ! pkg-config --modversion opencv4 > /dev/null 2>&1; then
@@ -50,7 +50,7 @@ find_package(OpenCV REQUIRED)
 add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
 
 # Incluir diretórios
-include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(/usr/include/opencv4)
 find_package(Torch REQUIRED)
 
 # Vincular bibliotecas
