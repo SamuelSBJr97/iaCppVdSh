@@ -74,7 +74,7 @@ include_directories(
     ${LIBTORCH_DIR}/include/ATen
 )
 
-add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
+add_executable(iaCppVideoDescribe src/iaCppVideoDescribe.cpp)
 
 target_link_libraries(iaCppVideoDescribe \${OpenCV_LIBS} \${TORCH_LIBRARIES} c10 c10_cuda)
 
@@ -84,10 +84,10 @@ EOF
 export CMAKE_PREFIX_PATH=$LIBTORCH_DIR
 
 # Verificar e corrigir o código-fonte
-if grep -q "#include <torch/parallel.h>" "iaCppVdSh/src/iaCppVideoDescribe.cpp"; then
+if grep -q "#include <torch/parallel.h>" "src/iaCppVideoDescribe.cpp"; then
     echo "Corrigindo o código-fonte para remover torch/parallel.h..."
-    sed -i '/#include <torch\/parallel.h>/d' "iaCppVdSh/src/iaCppVideoDescribe.cpp"
-    echo "#include <ATen/Parallel.h>" >> "iaCppVdSh/src/iaCppVideoDescribe.cpp"
+    sed -i '/#include <torch\/parallel.h>/d' "src/iaCppVideoDescribe.cpp"
+    echo "#include <ATen/Parallel.h>" >> "src/iaCppVideoDescribe.cpp"
 fi
 
 echo "Compilando Torch"
