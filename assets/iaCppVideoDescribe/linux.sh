@@ -113,8 +113,9 @@ wget -O "$MODEL_PATH" https://github.com/ultralytics/yolov5/releases/download/v6
 echo "Verificando dependências..."
 
 # Instalar dependências (PyTorch e YOLOv5)
-pip install torch
-pip install git+https://github.com/ultralytics/yolov5.git
+git clone https://github.com/ultralytics/yolov5  # clone
+cd yolov5
+pip install -r requirements.txt  # install
 
 # Script para converter o modelo para o formato TorchScript
 echo "Convertendo o modelo para o formato TorchScript..."
