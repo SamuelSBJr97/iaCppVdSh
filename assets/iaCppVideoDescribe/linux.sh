@@ -90,22 +90,18 @@ if grep -q "#include <torch/parallel.h>" "../../iaCppVdSh/src/iaCppVideoDescribe
     echo "#include <ATen/Parallel.h>" >> "../../iaCppVdSh/src/iaCppVideoDescribe.cpp"
 fi
 
-echo "Compilando Torch e iaCppVideoDescribe"
+echo "Compilando iaCppVideoDescribe"
 rm -rf build
 mkdir -p build
 cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR -B build -S .
 make -C build -j$(nproc)
 
+mv build/iaCppVideoDescribe ../../
+
 echo "Baixando modelo pré treinado..."
 
 # Diretório onde o modelo será salvo
-MODEL_DIR="./"
-MODEL_PATH="${MODEL_DIR}/yolov5s.pt"
-
-# Verificar se o diretório de modelos existe, caso contrário, criar
-if [ ! -d "$MODEL_DIR" ]; then
-  mkdir -p "$MODEL_DIR"
-fi
+MODEL_PATH="../assets/iaCppVideoDescribe/yolov5s.pt"
 
 # Baixar o modelo YOLOv5 pré-treinado (modelo mais leve)
 echo "Baixando o modelo yolov5s.pt..."
@@ -118,33 +114,6 @@ if [ -f "$MODEL_PATH" ]; then
 else
     echo "Erro ao converter o modelo para TorchScript."
 fi
-
-# Nome do arquivo de saída
-#OUTPUT="../../iaCppVideoDescribe"
-
-# Caminho para o código-fonte
-#SOURCE="../src/iaCppVideoDescribe.cpp"
-
-# Flags de compilação
-#CXX=g++
-#CXXFLAGS="-std=c++17 -fopenmp -O2"
-#INCLUDE_FLAGS="-I${LIBTORCH_DIR}/include -I${LIBTORCH_DIR}/include/torch/csrc/api/include -I${OpenCV_INCLUDE_DIRS}"
-#LIB_FLAGS="-L${LIBTORCH_DIR}/lib -ltorch -ltorch_cpu -lc10 -L${OpenCV_LIBS} -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_highgui"
-
-# Exportando variáveis para o linker
-#export LD_LIBRARY_PATH=${LIBTORCH_DIR}/lib:$LD_LIBRARY_PATH
-
-# Comando de compilação
-#echo "Compilando o código..."
-#$CXX $CXXFLAGS $INCLUDE_FLAGS $SOURCE -o $OUTPUT $LIB_FLAGS
-
-# Verificação do resultado
-#if [ $? -eq 0 ]; then
-#    echo "Compilação concluída com sucesso! O executável foi gerado como './$OUTPUT'."
-#else
-#    echo "Erro na compilação."
-#    exit 1
-#fi
 
 echo "Modelo TorchScript salvo em $MODEL_PATH."
 echo "Para executar o programa, use: iaCppVdSh/video_pipeline <caminho_do_video> <caminho_do_modelo>"
