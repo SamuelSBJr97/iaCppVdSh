@@ -29,6 +29,18 @@ else
     echo "Libtorch já está instalado."
 fi
 
+# Configurar variáveis de ambiente para Libtorch
+export CMAKE_PREFIX_PATH=$LIBTORCH_DIR
+
+# Compilar o código
+echo "Compilando o código..."
+mkdir -p build && cd build
+cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR ..
+make
+
+# Mensagem de sucesso
+echo "CMAKE Libtorch"
+
 cat <<EOF > "CMakeLists.txt"
 # Definição da versão mínima do CMake
 cmake_minimum_required(VERSION 3.10)
@@ -59,20 +71,6 @@ target_link_libraries(iaCppVideoDescribe ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
 # Exportar variáveis de ambiente para o runtime
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${TORCH_INSTALL_PREFIX}/lib")
 EOF
-
-# Configurar variáveis de ambiente para Libtorch
-export CMAKE_PREFIX_PATH=$LIBTORCH_DIR
-
-# Compilar o código
-echo "Compilando o código..."
-mkdir -p build && cd build
-cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR ..
-make
-
-# Mensagem de sucesso
-echo "Pipeline compilado com sucesso!"
-
-echo "Pipeline compilado com sucesso!"
 
 # Diretório onde o modelo será salvo
 MODEL_DIR="./"
