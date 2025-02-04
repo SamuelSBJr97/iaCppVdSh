@@ -93,8 +93,6 @@ rm -rf build && mkdir -p build && cd build
 cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR ..
 make -j$(nproc)
 
-cd ../
-
 echo "Gerando modelo pré treinado..."
 
 # Diretório onde o modelo será salvo
