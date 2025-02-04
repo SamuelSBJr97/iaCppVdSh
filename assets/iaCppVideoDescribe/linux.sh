@@ -141,7 +141,7 @@ python3.8 -m pip install -r yolov5/requirements.txt  # install
 # Script para converter o modelo para o formato TorchScript
 echo "Convertendo o modelo para o formato TorchScript..."
 
-$TORCHSCRIPT_MODEL_PATH="../assets/iaCppVideoDescribe/yolov5s_scripted.pt"
+TORCHSCRIPT_MODEL_PATH="../assets/iaCppVideoDescribe/yolov5s_scripted.pt"
 
 # Python script para carregar o modelo YOLOv5 e exportá-lo como TorchScript
 cat <<EOF > "convert_model.py"
@@ -159,14 +159,14 @@ scripted_model = model.model.to('cpu').eval()  # Mover para CPU e modo eval
 scripted_model = torch.jit.script(scripted_model)  # Convertendo para TorchScript
 
 # Salvar o modelo TorchScript
-scripted_model.save('${$TORCHSCRIPT_MODEL_PATH}')
+scripted_model.save('${TORCHSCRIPT_MODEL_PATH}')
 EOF
 
 python3.8 convert_model.py
 
 # Verificação final
-if [ -f "$TORCHSCRIPT_MODEL_PATH" ]; then
-    echo "Modelo TorchScript salvo com sucesso em $TORCHSCRIPT_MODEL_PATH."
+if [ -f "TORCHSCRIPT_MODEL_PATH" ]; then
+    echo "Modelo TorchScript salvo com sucesso em TORCHSCRIPT_MODEL_PATH."
 else
     echo "Erro ao converter o modelo para TorchScript."
 fi
