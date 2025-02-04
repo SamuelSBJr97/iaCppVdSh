@@ -29,6 +29,37 @@ else
     echo "Libtorch já está instalado."
 fi
 
+cat <<EOF > "CMakeLists.txt"
+# Definição da versão mínima do CMake
+cmake_minimum_required(VERSION 3.10)
+
+# Nome do projeto
+project(video_pipeline)
+
+# Configuração do C++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Caminhos para LibTorch
+set(Torch_DIR "/path/to/libtorch/share/cmake/Torch")
+
+# Caminhos para OpenCV
+find_package(OpenCV REQUIRED)
+
+# Adicionar o arquivo-fonte
+add_executable(video_pipeline video_pipeline.cpp)
+
+# Incluir diretórios
+include_directories(${OpenCV_INCLUDE_DIRS})
+find_package(Torch REQUIRED)
+
+# Vincular bibliotecas
+target_link_libraries(video_pipeline ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
+
+# Exportar variáveis de ambiente para o runtime
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${TORCH_INSTALL_PREFIX}/lib")
+EOF
+
 # Configurar variáveis de ambiente para Libtorch
 export CMAKE_PREFIX_PATH=$LIBTORCH_DIR
 
