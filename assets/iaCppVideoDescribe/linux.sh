@@ -129,7 +129,7 @@ python3.8 get-pip.py
 # Instalar dependências (PyTorch e YOLOv5)
 rm -rf yolov5  # Remover o repositório existente, se houver
 git clone https://github.com/ultralytics/yolov5  # clone
-python 3.8 -m pip install -r yolov5/requirements.txt  # install
+python3.8 -m pip install -r yolov5/requirements.txt  # install
 
 # Script para converter o modelo para o formato TorchScript
 echo "Convertendo o modelo para o formato TorchScript..."
