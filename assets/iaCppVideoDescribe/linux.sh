@@ -110,7 +110,9 @@ echo "Baixando o modelo YOLOv5..."
 wget -O "$MODEL_PATH" https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt
 
 # Verificar se o PyTorch e o repositório YOLOv5 estão instalados para converter para TorchScript
-echo "Verificando dependências..."
+echo "Verificando dependências para gerar o modelo pre treinado..."
+
+apt-get install -y python3.8 python3.8-pip
 
 # Instalar dependências (PyTorch e YOLOv5)
 git clone https://github.com/ultralytics/yolov5  # clone
@@ -136,7 +138,7 @@ scripted_model = torch.jit.script(scripted_model)  # Convertendo para TorchScrip
 scripted_model.save('$TORCHSCRIPT_MODEL_PATH')
 EOF
 
-python build_model.py
+python3.8 build_model.py
 
 # Verificação final
 if [ -f "$TORCHSCRIPT_MODEL_PATH" ]; then
