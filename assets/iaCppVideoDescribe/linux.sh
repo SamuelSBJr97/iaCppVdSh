@@ -74,9 +74,9 @@ include_directories(
     ${LIBTORCH_DIR}/include/ATen
 )
 
-add_executable(../iaCppVideoDescribe ../../iaCppVdSh/src/iaCppVideoDescribe.cpp)
+add_executable(iaCppVideoDescribe ../../iaCppVdSh/src/iaCppVideoDescribe.cpp)
 
-target_link_libraries(../iaCppVideoDescribe \${OpenCV_LIBS} \${TORCH_LIBRARIES} c10 c10_cuda)
+target_link_libraries(iaCppVideoDescribe \${OpenCV_LIBS} \${TORCH_LIBRARIES} c10 c10_cuda)
 
 set(CMAKE_EXE_LINKER_FLAGS "\${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,\${TORCH_INSTALL_PREFIX}/lib")
 EOF
@@ -165,7 +165,7 @@ else
 fi
 
 # Nome do arquivo de saída
-OUTPUT="../iaCppVideoDescribe"
+OUTPUT="../../iaCppVideoDescribe"
 
 # Caminho para o código-fonte
 SOURCE="../src/iaCppVideoDescribe.cpp"
@@ -197,7 +197,7 @@ export LD_LIBRARY_PATH=${LIBTORCH_DIR}/lib:$LD_LIBRARY_PATH
 
 # Comando de compilação
 echo "Compilando o código..."
-# $CXX $CXXFLAGS $INCLUDE_FLAGS $SOURCE -o $OUTPUT $LIB_FLAGS
+$CXX $CXXFLAGS $INCLUDE_FLAGS $SOURCE -o $OUTPUT $LIB_FLAGS
 
 # Verificação do resultado
 if [ $? -eq 0 ]; then
