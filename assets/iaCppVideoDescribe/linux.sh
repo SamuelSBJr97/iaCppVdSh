@@ -157,7 +157,7 @@ device = select_device('cpu')
 model = DetectMultiBackend(model_path, device=device)  # Use 'cuda' se estiver usando GPU
 
 # Converter o modelo para o formato TorchScript
-scripted_model = torch.jit.script(model)
+scripted_model = torch.jit.script(model.model)
 
 # Salvar o modelo TorchScript
 scripted_model.save('${TORCHSCRIPT_MODEL_PATH}')
