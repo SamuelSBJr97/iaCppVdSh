@@ -147,16 +147,24 @@ import sys
 sys.path.append('yolov5')  # Adicionar o repositório YOLOv5 ao PYTHONPATH
 import torch
 from models.common import DetectMultiBackend
+from utils.general import check_img_size
+from utils.torch_utils import select_device
 
 # Caminho para o modelo YOLOv5
 model_path = '${MODEL_PATH}'
 
 # Carregar o modelo YOLOv5
-model = DetectMultiBackend(model_path, device='cpu')  # Use 'cuda' se estiver usando GPU
+device = select_device('cpu')
+model = DetectMultiBackend(model_path, device=device)  # Use 'cuda' se estiver usando GPU
+
+# Definir tamanho da imagem
+img_size = check_img_size(640)
+
+# Criar um tensor de exemplo
+example_input = torch.zeros((1, 3, img_size, img_size)).to(device)
 
 # Converter o modelo para o formato TorchScript
-scripted_model = model.model.to('cpu').eval()  # Mover para CPU e modo eval
-scripted_model = torch.jit.script(scripted_model)  # Convertendo para TorchScript
+scripted_model = torch.jit.trace(model.model, example_input)  # Usar torch.jit.trace
 
 # Salvar o modelo TorchScript
 scripted_model.save('${TORCHSCRIPT_MODEL_PATH}')
