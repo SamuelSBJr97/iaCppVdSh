@@ -31,17 +31,51 @@ fi
 
 cat <<EOF > "CMakeLists.txt"
 cmake_minimum_required(VERSION 3.10)
-project(iaCppVdSh/src/iaCppVideoDescribe)
 
+# Nome do projeto
+project(iaCppVideoDescribe)
+
+# Especificar o padrão C++ (C++17, neste caso)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Caminho para a LibTorch
-set(Torch_DIR "${LIBTORCH_DIR}/share/cmake/Torch")
-find_package(Torch REQUIRED)
+# Adicionar mensagens para ajudar no diagnóstico durante a configuração
+message(STATUS "Configuração do projeto iaCppVideoDescribe...")
 
-add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
-target_link_libraries(iaCppVideoDescribe "${TORCH_LIBRARIES}")
+# Definir o caminho para o LibTorch
+# Certifique-se de substituir '/caminho/para/libtorch' pelo local correto onde você extraiu a biblioteca.
+set(Torch_DIR "${LIBTORCH_DIR}/share/cmake/Torch")
+
+# Encontrar e vincular a biblioteca LibTorch
+find_package(Torch REQUIRED)
+if (Torch_FOUND)
+    message(STATUS "LibTorch encontrada em: ${Torch_DIR}")
+else()
+    message(FATAL_ERROR "LibTorch não foi encontrada! Verifique se o caminho está correto.")
+endif()
+
+# Encontrar e vincular a biblioteca OpenCV
+find_package(OpenCV REQUIRED)
+if (OpenCV_FOUND)
+    message(STATUS "OpenCV encontrado em: ${OpenCV_CONFIG_PATH}")
+else()
+    message(FATAL_ERROR "OpenCV não foi encontrado! Certifique-se de que ele está instalado.")
+endif()
+
+# Adicionar o diretório de includes do seu projeto
+include_directories(${OpenCV_INCLUDE_DIRS})
+include_directories(${Torch_INCLUDE_DIRS})
+
+# Definir o caminho para os arquivos de origem do seu projeto
+set(SOURCES ${CMAKE_SOURCE_DIR}/src/iaCppVideoDescribe.cpp)
+
+# Adicionar o executável principal
+add_executable(iaCppVideoDescribe ${SOURCES})
+
+# Especificar as bibliotecas que devem ser vinculadas ao projeto
+target_link_libraries(iaCppVideoDescribe ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
+
+# Adicionar flags específicas para o linker
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${TORCH_INSTALL_PREFIX}/lib")
 EOF
 
