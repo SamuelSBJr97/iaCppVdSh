@@ -66,11 +66,8 @@ endif()
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${Torch_INCLUDE_DIRS})
 
-# Definir o caminho para os arquivos de origem do seu projeto
-set(SOURCES ${CMAKE_SOURCE_DIR}/iaCppVideoDescribe/src/iaCppVideoDescribe.cpp)
-
 # Adicionar o executável principal
-add_executable(iaCppVideoDescribe ${SOURCES})
+add_executable(iaCppVideoDescribe iaCppVideoDescribe/src/iaCppVideoDescribe.cpp)
 
 # Especificar as bibliotecas que devem ser vinculadas ao projeto
 target_link_libraries(iaCppVideoDescribe ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
