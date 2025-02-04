@@ -117,14 +117,14 @@ echo "Verificando dependências para gerar o modelo pre treinado..."
 echo "Instalando Python 3.8..."
 sudo apt-get update
 sudo apt-get install -y software-properties-common
-sudo add-apt-repository ppa:deadsnakes/ppa
+sudo add-apt-repository -y ppa:deadsnakes/ppa
 sudo apt-get update
 sudo apt-get install -y python3.8 python3.8-venv
 
 # Instalar pip para Python 3.8
-sudo apt-get install -y python3.8-distutils
+apt-get install -y python3.8-distutils
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-sudo python3.8 get-pip.py
+python3.8 get-pip.py
 
 # Instalar dependências (PyTorch e YOLOv5)
 rm -rf yolov5  # Remover o repositório existente, se houver
