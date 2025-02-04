@@ -164,7 +164,8 @@ print("Modelo convertido e salvo como '${TORCHSCRIPT_MODEL_PATH}'")
 EOF
 
 # Executar o script Python no diretório correto
-(cd yolov5 && python3.8 ../convert_model.py)
+mv convert_model.py yolov5/
+python3.8 yolov5/convert_model.py
 
 # Verificação final
 if [ -f "$TORCHSCRIPT_MODEL_PATH" ]; then
