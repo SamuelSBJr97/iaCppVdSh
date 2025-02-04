@@ -48,7 +48,7 @@ set(Torch_DIR "${LIBTORCH_DIR}/share/cmake/Torch")
 
 find_package(Torch REQUIRED)
 if (Torch_FOUND)
-    message(STATUS "LibTorch encontrada em: ${Torch_DIR}")
+    message(STATUS "LibTorch encontrada em: Torch_DIR")
 else()
     message(FATAL_ERROR "LibTorch não foi encontrada! Verifique se o caminho está correto.")
 endif()
@@ -56,13 +56,13 @@ endif()
 # Caminho para OpenCV
 find_package(OpenCV REQUIRED PATHS /usr /usr/local /opt)
 if (OpenCV_FOUND)
-    message(STATUS "OpenCV encontrado em: ${OpenCV_INCLUDE_DIRS}")
+    message(STATUS "OpenCV encontrado em: OpenCV_INCLUDE_DIRS")
 else()
     message(FATAL_ERROR "OpenCV não foi encontrado! Certifique-se de que ele está instalado.")
 endif()
 
 # Adicionar diretórios de include
-include_directories(${OpenCV_INCLUDE_DIRS} ${Torch_INCLUDE_DIRS})
+include_directories(OpenCV_INCLUDE_DIRS Torch_INCLUDE_DIRS)
 
 # Adicionar o executável principal
 add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
