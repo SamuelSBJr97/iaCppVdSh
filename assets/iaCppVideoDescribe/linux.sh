@@ -41,7 +41,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Caminhos para LibTorch
-set(Torch_DIR "/path/to/libtorch/share/cmake/Torch")
+set(Torch_DIR "${LIBTORCH_DIR}/share/cmake/Torch")
 
 # Caminhos para OpenCV
 find_package(OpenCV REQUIRED)
