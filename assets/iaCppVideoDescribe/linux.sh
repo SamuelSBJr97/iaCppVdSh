@@ -54,7 +54,7 @@ include_directories(/usr/include/opencv4)
 find_package(Torch REQUIRED)
 
 # Vincular bibliotecas
-target_link_libraries(iaCppVideoDescribe ${OpenCV_LIBS} "${LIBTORCH_DIR}/lib/")
+target_link_libraries(iaCppVideoDescribe "${LIBTORCH_DIR}/lib/")
 
 # Exportar variáveis de ambiente para o runtime
 set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,${LIBTORCH_DIR}/lib")
