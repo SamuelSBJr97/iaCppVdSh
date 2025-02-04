@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp>  // Para processamento de vídeo
 #include <torch/script.h>      // Para integração com modelos PyTorch (Libtorch)
+#include <ATen/cuda/CUDAContext.h> // Para suporte a GPU com ATen
 #include <ATen/Parallel.h>     // Para paralelismo com ATen
 #include <omp.h>               // Para paralelismo com OpenMP
 #include <string>
@@ -44,7 +45,7 @@ std::vector<std::string> analyzeFrame(const cv::Mat& frame, torch::jit::script::
     tensor = tensor.to(torch::kFloat) / 255.0;
 
     // Mover para GPU ou CPU
-    if (useGPU && torch::cuda::is_available()) {
+    if (useGPU && at::cuda::is_available()) {
         tensor = tensor.to(torch::kCUDA);
     } else {
         tensor = tensor.to(torch::kCPU);
@@ -87,7 +88,7 @@ int main(int argc, char** argv) {
 
         // Carregar modelo de IA
         torch::jit::script::Module model = torch::jit::load(modelPath);
-        if (useGPU && torch::cuda::is_available()) {
+        if (useGPU && at::cuda::is_available()) {
             model.to(torch::kCUDA);
             std::cout << "Modelo carregado na GPU.\n";
         } else {

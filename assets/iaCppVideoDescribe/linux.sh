@@ -54,6 +54,15 @@ else()
     message(FATAL_ERROR "OpenCV não foi encontrado! Certifique-se de que ele está instalado.")
 endif()
 
+find_package(CUDA REQUIRED)
+if (CUDA_FOUND)
+    message(STATUS "CUDA encontrado: ${CUDA_VERSION}")
+    include_directories(${CUDA_INCLUDE_DIRS})
+    link_directories(${CUDA_LIBRARIES})
+else()
+    message(FATAL_ERROR "CUDA não foi encontrado! Certifique-se de que ele está instalado corretamente.")
+endif()
+
 include_directories(
     \${OpenCV_INCLUDE_DIRS}
     \${TORCH_INCLUDE_DIRS}
@@ -65,7 +74,7 @@ include_directories(
 
 add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
 
-target_link_libraries(iaCppVideoDescribe \${OpenCV_LIBS} \${TORCH_LIBRARIES} c10)
+target_link_libraries(iaCppVideoDescribe \${OpenCV_LIBS} \${TORCH_LIBRARIES} c10 c10_cuda)
 
 set(CMAKE_EXE_LINKER_FLAGS "\${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,\${TORCH_INSTALL_PREFIX}/lib")
 EOF
