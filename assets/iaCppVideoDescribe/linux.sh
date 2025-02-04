@@ -34,7 +34,7 @@ cat <<EOF > "CMakeLists.txt"
 cmake_minimum_required(VERSION 3.10)
 
 # Nome do projeto
-project(video_pipeline)
+project(iaCppVdSh/src/iaCppVideoDescribe)
 
 # Configuração do C++17
 set(CMAKE_CXX_STANDARD 17)
@@ -47,14 +47,14 @@ set(Torch_DIR "/path/to/libtorch/share/cmake/Torch")
 find_package(OpenCV REQUIRED)
 
 # Adicionar o arquivo-fonte
-add_executable(video_pipeline video_pipeline.cpp)
+add_executable(iaCppVdSh/iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
 
 # Incluir diretórios
 include_directories(${OpenCV_INCLUDE_DIRS})
 find_package(Torch REQUIRED)
 
 # Vincular bibliotecas
-target_link_libraries(video_pipeline ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
+target_link_libraries(iaCppVdSh/iaCppVideoDescribe ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
 
 # Exportar variáveis de ambiente para o runtime
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${TORCH_INSTALL_PREFIX}/lib")
