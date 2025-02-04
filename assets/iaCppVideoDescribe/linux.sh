@@ -4,7 +4,7 @@
 
 set -e  # Para o script em caso de erro
 
-mkdir -p iaCppVdSh/build && cd iaCppVdSh/build
+cd iaCppVdSh
 
 # Atualizar o sistema
 apt update && sudo apt upgrade -y
