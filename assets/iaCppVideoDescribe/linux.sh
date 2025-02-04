@@ -96,7 +96,7 @@ mkdir -p build
 cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR -B build -S .
 make -C build -j$(nproc)
 
-mv build/iaCppVideoDescribe ../../
+mv build/iaCppVideoDescribe ../
 
 echo "Baixando modelo pré treinado..."
 
