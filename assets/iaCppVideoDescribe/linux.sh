@@ -89,8 +89,8 @@ if grep -q "#include <torch/parallel.h>" "iaCppVdSh/src/iaCppVideoDescribe.cpp";
 fi
 
 echo "Compilando Torch"
-mkdir -p build && cd build
-cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR ..
+mkdir -p build
+cmake -DCMAKE_PREFIX_PATH=build/$LIBTORCH_DIR ..
 make -j$(nproc)
 
 echo "Gerando modelo pré treinado..."
@@ -129,8 +129,7 @@ python3.8 get-pip.py
 # Instalar dependências (PyTorch e YOLOv5)
 rm -rf yolov5  # Remover o repositório existente, se houver
 git clone https://github.com/ultralytics/yolov5  # clone
-cd yolov5
-python 3.8 -m pip install -r requirements.txt  # install
+python 3.8 -m pip install -r yolov5/requirements.txt  # install
 
 # Script para converter o modelo para o formato TorchScript
 echo "Convertendo o modelo para o formato TorchScript..."
