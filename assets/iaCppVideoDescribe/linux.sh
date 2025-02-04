@@ -89,9 +89,10 @@ if grep -q "#include <torch/parallel.h>" "iaCppVdSh/src/iaCppVideoDescribe.cpp";
 fi
 
 echo "Compilando Torch"
-rm -rf build && mkdir -p build && cd build
-cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR ..
-make -j$(nproc)
+rm -rf build
+mkdir -p build
+cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR -B build -S .
+make -C build -j$(nproc)
 
 echo "Gerando modelo pré treinado..."
 
