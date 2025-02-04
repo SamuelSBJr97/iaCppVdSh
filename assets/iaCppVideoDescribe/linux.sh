@@ -96,22 +96,6 @@ mkdir -p build
 cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR -B build -S .
 make -C build -j$(nproc)
 
-# Checando se os caminhos estão configurados corretamente
-if [ ! -d "$LIBTORCH_DIR" ]; then
-    echo "Erro: Diretório da LibTorch não encontrado em $LIBTORCH_DIR"
-    exit 1
-fi
-
-if [ ! -d "$OpenCV_INCLUDE_DIRS" ]; then
-    echo "Erro: Diretório de cabeçalhos do OpenCV não encontrado em $OpenCV_INCLUDE_DIRS"
-    exit 1
-fi
-
-if [ ! -d "$OPENCV_LIB" ]; then
-    echo "Erro: Diretório de bibliotecas do OpenCV não encontrado em $OPENCV_LIB"
-    exit 1
-fi
-
 echo "Baixando modelo pré treinado..."
 
 # Diretório onde o modelo será salvo
