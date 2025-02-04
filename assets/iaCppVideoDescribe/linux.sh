@@ -120,7 +120,7 @@ pip install git+https://github.com/ultralytics/yolov5.git
 echo "Convertendo o modelo para o formato TorchScript..."
 
 # Python script para carregar o modelo YOLOv5 e exportá-lo como TorchScript
-python3 - <<EOF
+cat <<EOF > "build_model.py"
 import torch
 from models.common import DetectMultiBackend
 
@@ -133,8 +133,9 @@ scripted_model = torch.jit.script(scripted_model)  # Convertendo para TorchScrip
 
 # Salvar o modelo TorchScript
 scripted_model.save('$TORCHSCRIPT_MODEL_PATH')
-
 EOF
+
+python build_model.py
 
 # Verificação final
 if [ -f "$TORCHSCRIPT_MODEL_PATH" ]; then
