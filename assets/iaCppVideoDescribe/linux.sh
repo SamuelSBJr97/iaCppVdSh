@@ -116,10 +116,10 @@ else
 fi
 
 # Verificar se o PyTorch e o repositório YOLOv5 estão instalados para converter para TorchScript
-log "Verificando dependências para gerar o modelo pre treinado..."
+echo "Verificando dependências para gerar o modelo pre treinado..."
 
 # Instalar Python 3.8
-log "Instalando Python 3.8..."
+echo "Instalando Python 3.8..."
 apt-get update
 apt-get install -y software-properties-common
 add-apt-repository -y ppa:deadsnakes/ppa
@@ -127,19 +127,19 @@ apt-get update
 apt-get install -y python3.8 python3.8-venv
 
 # Instalar pip para Python 3.8
-log "Instalando pip para Python 3.8..."
+echo "Instalando pip para Python 3.8..."
 apt-get install -y python3.8-distutils
 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
 python3.8 get-pip.py
 
 # Instalar dependências (PyTorch e YOLOv5)
-log "Instalando https://github.com/ultralytics/yolov5..."
+echo "Instalando https://github.com/ultralytics/yolov5..."
 rm -rf yolov5  # Remover o repositório existente, se houver
 git clone https://github.com/ultralytics/yolov5  # clone
 python3.8 -m pip install -r yolov5/requirements.txt  # install
 
 # Script para converter o modelo para o formato TorchScript
-log "Convertendo o modelo para o formato TorchScript..."
+echo "Convertendo o modelo para o formato TorchScript..."
 
 $TORCHSCRIPT_MODEL_PATH="../assets/iaCppVideoDescribe/yolov5s_scripted.pt"
 
@@ -166,9 +166,9 @@ python3.8 convert_model.py
 
 # Verificação final
 if [ -f "$TORCHSCRIPT_MODEL_PATH" ]; then
-    log "Modelo TorchScript salvo com sucesso em $TORCHSCRIPT_MODEL_PATH."
+    echo "Modelo TorchScript salvo com sucesso em $TORCHSCRIPT_MODEL_PATH."
 else
-    log_error "Erro ao converter o modelo para TorchScript."
+    echo "Erro ao converter o modelo para TorchScript."
 fi
 
 echo "Modelo TorchScript salvo em $MODEL_PATH."
