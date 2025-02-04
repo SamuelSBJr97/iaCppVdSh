@@ -91,7 +91,7 @@ fi
 echo "Compilando Torch"
 rm -rf build
 mkdir -p build
-cmake -DCMAKE_PREFIX_PATH=build/$LIBTORCH_DIR ..
+cmake -DCMAKE_PREFIX_PATH="build/$LIBTORCH_DIR" ..
 make -j$(nproc)
 
 echo "Gerando modelo pré treinado..."
