@@ -67,7 +67,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${Torch_INCLUDE_DIRS})
 
 # Definir o caminho para os arquivos de origem do seu projeto
-set(SOURCES ${CMAKE_SOURCE_DIR}/src/iaCppVideoDescribe.cpp)
+set(SOURCES ${CMAKE_SOURCE_DIR}/iaCppVideoDescribe/src/iaCppVideoDescribe.cpp)
 
 # Adicionar o executável principal
 add_executable(iaCppVideoDescribe ${SOURCES})
