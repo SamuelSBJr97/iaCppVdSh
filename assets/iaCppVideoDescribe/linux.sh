@@ -30,34 +30,19 @@ else
 fi
 
 cat <<EOF > "CMakeLists.txt"
-# Definição da versão mínima do CMake
 cmake_minimum_required(VERSION 3.10)
-
-# Nome do projeto
 project(iaCppVdSh/src/iaCppVideoDescribe)
 
-# Configuração do C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Caminhos para LibTorch
+# Caminho para a LibTorch
 set(Torch_DIR "${LIBTORCH_DIR}/share/cmake/Torch")
-
-# Caminhos para OpenCV
-find_package(OpenCV REQUIRED)
-
-# Adicionar o arquivo-fonte
-add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
-
-# Incluir diretórios
-include_directories(/usr/include/opencv4)
 find_package(Torch REQUIRED)
 
-# Vincular bibliotecas
-target_link_libraries(iaCppVideoDescribe "${LIBTORCH_DIR}/libtorch_cuda.so ${LIBTORCH_DIR}/libtorch_cpu.so ${LIBTORCH_DIR}/libc10.so")
-
-# Exportar variáveis de ambiente para o runtime
-set(CMAKE_EXE_LINKER_FLAGS "-Wl,-rpath,${LIBTORCH_DIR}/libtorch_cuda.so ${LIBTORCH_DIR}/libtorch_cpu.so ${LIBTORCH_DIR}/libc10.so")
+add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
+target_link_libraries(iaCppVideoDescribe "${TORCH_LIBRARIES}")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${TORCH_INSTALL_PREFIX}/lib")
 EOF
 
 # Configurar variáveis de ambiente para Libtorch
