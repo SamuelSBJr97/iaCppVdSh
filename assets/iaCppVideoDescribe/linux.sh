@@ -67,7 +67,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${Torch_INCLUDE_DIRS})
 
 # Adicionar o executável principal
-add_executable(iaCppVideoDescribe iaCppVideoDescribe/src/iaCppVideoDescribe.cpp)
+add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
 
 # Especificar as bibliotecas que devem ser vinculadas ao projeto
 target_link_libraries(iaCppVideoDescribe ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
