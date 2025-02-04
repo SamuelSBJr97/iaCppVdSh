@@ -32,6 +32,7 @@ fi
 # Configurar variáveis de ambiente para Libtorch
 export CMAKE_PREFIX_PATH=$LIBTORCH_DIR
 
+cat <<EOF > "CMakeLists.txt"
 # Compilar o código
 echo "Compilando o código..."
 mkdir -p build && cd build
@@ -41,7 +42,6 @@ make
 # Mensagem de sucesso
 echo "CMAKE Libtorch"
 
-cat <<EOF > "CMakeLists.txt"
 # Definição da versão mínima do CMake
 cmake_minimum_required(VERSION 3.10)
 
