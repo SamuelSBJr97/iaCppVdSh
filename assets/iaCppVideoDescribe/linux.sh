@@ -67,11 +67,11 @@ include_directories(${OpenCV_INCLUDE_DIRS} ${Torch_INCLUDE_DIRS})
 # Adicionar o executável principal
 add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
 
-# Especificar as bibliotecas que devem ser vinculadas ao projeto
-target_link_libraries(iaCppVideoDescribe ${OpenCV_LIBS} "${TORCH_LIBRARIES}")
+# Vincular bibliotecas
+target_link_libraries(iaCppVideoDescribe OpenCV_LIBS} "TORCH_LIBRARIES")
 
-# Adicionar flags específicas para o linker
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath,${TORCH_INSTALL_PREFIX}/lib")
+# Configuração do Linker
+set(CMAKE_EXE_LINKER_FLAGS "CMAKE_EXE_LINKER_FLAGS -Wl,-rpath,TORCH_INSTALL_PREFIX/lib")
 EOF
 
 # Configurar variáveis de ambiente para Libtorch
