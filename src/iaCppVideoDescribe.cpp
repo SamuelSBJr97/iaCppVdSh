@@ -3,7 +3,7 @@
 
 #include <opencv2/opencv.hpp>  // Para processamento de vídeo
 #include <torch/script.h>      // Para integração com modelos PyTorch (Libtorch)
-#include <torch/parallel.h>    // Para paralelismo com Torch
+#include <ATen/Parallel.h>     // Para paralelismo com ATen
 #include <omp.h>               // Para paralelismo com OpenMP
 #include <string>
 #include <vector>

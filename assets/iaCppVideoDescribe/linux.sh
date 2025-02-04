@@ -72,6 +72,13 @@ EOF
 
 export CMAKE_PREFIX_PATH=$LIBTORCH_DIR
 
+# Verificar e corrigir o código-fonte
+if grep -q "#include <torch/parallel.h>" "iaCppVdSh/src/iaCppVideoDescribe.cpp"; then
+    echo "Corrigindo o código-fonte para remover torch/parallel.h..."
+    sed -i '/#include <torch\/parallel.h>/d' "iaCppVdSh/src/iaCppVideoDescribe.cpp"
+    echo "#include <ATen/Parallel.h>" >> "iaCppVdSh/src/iaCppVideoDescribe.cpp"
+fi
+
 echo "Compilando o código..."
 mkdir -p build && cd build
 cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR ..
