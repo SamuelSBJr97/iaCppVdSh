@@ -22,7 +22,7 @@ fi
 LIBTORCH_DIR="/usr/local/libtorch"
 if [ ! -d "$LIBTORCH_DIR" ]; then
     echo "Instalando Libtorch..."
-    wget https://download.pytorch.org/libtorch/cu118/libtorch-cxx11-abi-shared-with-deps-2.0.1%2Bcu118.zip -O libtorch.zip
+    wget https://download.pytorch.org/libtorch/cu121/libtorch-cxx11-abi-shared-with-deps-2.1.0%2Bcu121.zip -O libtorch.zip
     unzip libtorch.zip -d /usr/local/
     rm libtorch.zip
 else
@@ -60,6 +60,7 @@ include_directories(
     ${LIBTORCH_DIR}/include
     ${LIBTORCH_DIR}/include/torch/csrc/api/include
     ${LIBTORCH_DIR}/include/torch
+    ${LIBTORCH_DIR}/include/ATen
 )
 
 add_executable(iaCppVideoDescribe iaCppVdSh/src/iaCppVideoDescribe.cpp)
