@@ -90,91 +90,11 @@ if grep -q "#include <torch/parallel.h>" "../../iaCppVdSh/src/iaCppVideoDescribe
     echo "#include <ATen/Parallel.h>" >> "../../iaCppVdSh/src/iaCppVideoDescribe.cpp"
 fi
 
-echo "Compilando Torch"
+echo "Compilando Torch e iaCppVideoDescribe"
 rm -rf build
 mkdir -p build
 cmake -DCMAKE_PREFIX_PATH=$LIBTORCH_DIR -B build -S .
 make -C build -j$(nproc)
-
-echo "Gerando modelo pré treinado..."
-
-# Diretório onde o modelo será salvo
-MODEL_DIR="./"
-MODEL_PATH="${MODEL_DIR}/yolov5s.pt"
-TORCHSCRIPT_MODEL_PATH="${MODEL_DIR}/yolov5s_scripted.pt"
-
-# Verificar se o diretório de modelos existe, caso contrário, criar
-if [ ! -d "$MODEL_DIR" ]; then
-  mkdir -p "$MODEL_DIR"
-fi
-
-# Baixar o modelo YOLOv5 pré-treinado (modelo mais leve)
-echo "Baixando o modelo YOLOv5..."
-rm -rf $MODEL_PATH  # Remover o modelo existente, se houver
-wget -O "$MODEL_PATH" https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt
-
-# Verificar se o PyTorch e o repositório YOLOv5 estão instalados para converter para TorchScript
-echo "Verificando dependências para gerar o modelo pre treinado..."
-
-# Instalar Python 3.8
-echo "Instalando Python 3.8..."
-sudo apt-get update
-sudo apt-get install -y software-properties-common
-sudo add-apt-repository -y ppa:deadsnakes/ppa
-sudo apt-get update
-sudo apt-get install -y python3.8 python3.8-venv
-
-# Instalar pip para Python 3.8
-echo "Instalando pip para Python 3.8..."
-apt-get install -y python3.8-distutils
-curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-python3.8 get-pip.py
-
-# Instalar dependências (PyTorch e YOLOv5)
-echo "Instalando https://github.com/ultralytics/yolov5.."
-rm -rf yolov5  # Remover o repositório existente, se houver
-git clone https://github.com/ultralytics/yolov5  # clone
-python3.8 -m pip install -r yolov5/requirements.txt  # install
-
-# Script para converter o modelo para o formato TorchScript
-echo "Convertendo o modelo para o formato TorchScript..."
-
-# Python script para carregar o modelo YOLOv5 e exportá-lo como TorchScript
-cat <<EOF > "build_model.py"
-import torch
-from models.common import DetectMultiBackend
-
-# Carregar o modelo YOLOv5
-model = DetectMultiBackend('$MODEL_PATH', device='cpu')  # Use 'cuda' se estiver usando GPU
-
-# Converter o modelo para o formato TorchScript
-scripted_model = model.model.to('cpu').half().eval()  # Mover para CPU e modo eval
-scripted_model = torch.jit.script(scripted_model)  # Convertendo para TorchScript
-
-# Salvar o modelo TorchScript
-scripted_model.save('$TORCHSCRIPT_MODEL_PATH')
-EOF
-
-python3.8 build_model.py
-
-# Verificação final
-if [ -f "$TORCHSCRIPT_MODEL_PATH" ]; then
-    echo "Modelo TorchScript salvo com sucesso em $TORCHSCRIPT_MODEL_PATH."
-else
-    echo "Erro ao converter o modelo para TorchScript."
-fi
-
-# Nome do arquivo de saída
-OUTPUT="../../iaCppVideoDescribe"
-
-# Caminho para o código-fonte
-SOURCE="../src/iaCppVideoDescribe.cpp"
-
-# Flags de compilação
-CXX=g++
-CXXFLAGS="-std=c++17 -fopenmp -O2"
-INCLUDE_FLAGS="-I${LIBTORCH_DIR}/include -I${LIBTORCH_DIR}/include/torch/csrc/api/include -I${OpenCV_INCLUDE_DIRS}"
-LIB_FLAGS="-L${LIBTORCH_DIR}/lib -ltorch -ltorch_cpu -lc10 -L${OpenCV_LIBS} -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_highgui"
 
 # Checando se os caminhos estão configurados corretamente
 if [ ! -d "$LIBTORCH_DIR" ]; then
@@ -192,20 +112,55 @@ if [ ! -d "$OPENCV_LIB" ]; then
     exit 1
 fi
 
-# Exportando variáveis para o linker
-export LD_LIBRARY_PATH=${LIBTORCH_DIR}/lib:$LD_LIBRARY_PATH
+echo "Baixando modelo pré treinado..."
 
-# Comando de compilação
-echo "Compilando o código..."
-$CXX $CXXFLAGS $INCLUDE_FLAGS $SOURCE -o $OUTPUT $LIB_FLAGS
+# Diretório onde o modelo será salvo
+MODEL_DIR="./"
+MODEL_PATH="${MODEL_DIR}/yolov5s.pt"
 
-# Verificação do resultado
-if [ $? -eq 0 ]; then
-    echo "Compilação concluída com sucesso! O executável foi gerado como './$OUTPUT'."
-else
-    echo "Erro na compilação."
-    exit 1
+# Verificar se o diretório de modelos existe, caso contrário, criar
+if [ ! -d "$MODEL_DIR" ]; then
+  mkdir -p "$MODEL_DIR"
 fi
 
-echo "Modelo TorchScript salvo em $TORCHSCRIPT_MODEL_PATH."
+# Baixar o modelo YOLOv5 pré-treinado (modelo mais leve)
+echo "Baixando o modelo yolov5s.pt..."
+rm -rf $MODEL_PATH  # Remover o modelo existente, se houver
+wget -O "$MODEL_PATH" https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt
+
+# Verificação final
+if [ -f "$MODEL_PATH" ]; then
+    echo "Modelo TorchScript salvo com sucesso em $MODEL_PATH."
+else
+    echo "Erro ao converter o modelo para TorchScript."
+fi
+
+# Nome do arquivo de saída
+#OUTPUT="../../iaCppVideoDescribe"
+
+# Caminho para o código-fonte
+#SOURCE="../src/iaCppVideoDescribe.cpp"
+
+# Flags de compilação
+#CXX=g++
+#CXXFLAGS="-std=c++17 -fopenmp -O2"
+#INCLUDE_FLAGS="-I${LIBTORCH_DIR}/include -I${LIBTORCH_DIR}/include/torch/csrc/api/include -I${OpenCV_INCLUDE_DIRS}"
+#LIB_FLAGS="-L${LIBTORCH_DIR}/lib -ltorch -ltorch_cpu -lc10 -L${OpenCV_LIBS} -lopencv_core -lopencv_videoio -lopencv_imgproc -lopencv_highgui"
+
+# Exportando variáveis para o linker
+#export LD_LIBRARY_PATH=${LIBTORCH_DIR}/lib:$LD_LIBRARY_PATH
+
+# Comando de compilação
+#echo "Compilando o código..."
+#$CXX $CXXFLAGS $INCLUDE_FLAGS $SOURCE -o $OUTPUT $LIB_FLAGS
+
+# Verificação do resultado
+#if [ $? -eq 0 ]; then
+#    echo "Compilação concluída com sucesso! O executável foi gerado como './$OUTPUT'."
+#else
+#    echo "Erro na compilação."
+#    exit 1
+#fi
+
+echo "Modelo TorchScript salvo em $MODEL_PATH."
 echo "Para executar o programa, use: iaCppVdSh/video_pipeline <caminho_do_video> <caminho_do_modelo>"
