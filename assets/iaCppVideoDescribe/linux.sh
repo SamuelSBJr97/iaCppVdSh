@@ -107,17 +107,30 @@ fi
 
 # Baixar o modelo YOLOv5 pré-treinado (modelo mais leve)
 echo "Baixando o modelo YOLOv5..."
+rm -rf $MODEL_PATH  # Remover o modelo existente, se houver
 wget -O "$MODEL_PATH" https://github.com/ultralytics/yolov5/releases/download/v6.2/yolov5s.pt
 
 # Verificar se o PyTorch e o repositório YOLOv5 estão instalados para converter para TorchScript
 echo "Verificando dependências para gerar o modelo pre treinado..."
 
-apt-get install -y python3.8 python3.8-pip
+# Instalar Python 3.8
+echo "Instalando Python 3.8..."
+sudo apt-get update
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update
+sudo apt-get install -y python3.8 python3.8-venv
+
+# Instalar pip para Python 3.8
+sudo apt-get install -y python3.8-distutils
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+sudo python3.8 get-pip.py
 
 # Instalar dependências (PyTorch e YOLOv5)
+rm -rf yolov5  # Remover o repositório existente, se houver
 git clone https://github.com/ultralytics/yolov5  # clone
 cd yolov5
-pip install -r requirements.txt  # install
+python 3.8 -m pip install -r requirements.txt  # install
 
 # Script para converter o modelo para o formato TorchScript
 echo "Convertendo o modelo para o formato TorchScript..."
